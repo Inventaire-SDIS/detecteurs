@@ -187,12 +187,48 @@ label.chkl{display:flex;gap:8px;align-items:center;font-size:14px}
 .m5 .bottom{font-size:12px}.m5 .bottom b{animation:hb .6s steps(2,jump-none) infinite}
 .r5{display:grid;grid-template-columns:46px 1fr 40px;gap:4px;align-items:baseline;font-size:14px;padding:0 4px}
 .r5 span{text-align:right;font-weight:700;font-size:19px}
+.hinfo{font:700 15px var(--f-display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.wrap.dock{max-width:1700px;display:grid;grid-template-columns:minmax(0,1fr) 460px;grid-template-rows:auto minmax(0,1fr);gap:10px 16px}
+.dock header{grid-column:1/-1}
+.dock .main{grid-column:1;grid-row:2;padding-bottom:10px}
+.dock .menu{position:static;grid-column:2;grid-row:2;width:auto;max-height:none;height:100%;box-shadow:none;margin-bottom:10px}
+.dock #log2{max-height:240px}
+.pbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.pttl{font:700 17px var(--f-display);letter-spacing:.08em;text-transform:uppercase}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.pcard{border:1.5px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;background:var(--bg)}
+.pcard.alarm1{border-color:var(--warn)}
+.pcard.alarm2{border-color:var(--accent);animation:pc2 .6s steps(2,jump-none) infinite}
+@keyframes pc2{0%{box-shadow:0 0 0 3px var(--accent)}100%{box-shadow:0 0 0 3px transparent}}
+.ph{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ph .pn{font:700 18px var(--f-display);letter-spacing:.04em}
+.pscr{--ink:var(--lcd-on-ink);--bgc:var(--lcd-on);background:var(--bgc);color:var(--ink);border-radius:8px;padding:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px;font-family:var(--f-lcd);border:3px solid var(--dev-rubber)}
+.pscr.off{--bgc:#1b1b18;--ink:#4b4a44}
+.mt{border:2px solid var(--ink);border-radius:6px;padding:1px 6px 2px;min-width:0}
+.mt.wide{grid-column:1/-1}
+.mt .mv{display:block;font-size:28px;font-weight:700;line-height:1.1;text-align:right;font-variant-numeric:tabular-nums}
+.mt small{font-size:11px;font-weight:700}
+.mt.al{animation:inv .5s steps(2,jump-none) infinite}
+.icons{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.icons .sp{flex:1}
+.ic{width:34px;height:34px;border:1.5px solid var(--line);border-radius:8px;display:grid;place-items:center;color:var(--muted)}
+.ic svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ic.on{color:var(--ok);border-color:var(--ok)}
+.ic.warn{color:var(--warn);border-color:var(--warn)}
+.ic.bad{color:var(--accent);border-color:var(--accent)}
+.ic.lit{background:color-mix(in srgb,currentColor 20%,transparent);box-shadow:0 0 10px color-mix(in srgb,currentColor 55%,transparent)}
+.ic.bk1,.lamp.l1.on{animation:hb 1s steps(2,jump-none) infinite}
+.ic.bk2,.lamp.l2.on{animation:hb .5s steps(2,jump-none) infinite}
+.lamp{padding:5px 9px;border:1.5px solid var(--line);border-radius:6px;font:700 13px var(--f-display);letter-spacing:.08em;color:var(--muted)}
+.lamp.l1.on{background:var(--warn);border-color:var(--warn);color:var(--accent-fg)}
+.lamp.l2.on{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.pmeta{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
 @media (prefers-reduced-motion:reduce){.dev.al1,.dev.al2,.tile.al,.band.alb>span,.heart{animation:none}}
 </style>
 
 </head><body>
 <div class="wrap" id="app">
-  <header><span class="sim">SIMULATION</span>
+  <header><span class="sim">SIMULATION</span><span class="hinfo" id="hdrInfo" hidden></span>
     <button id="menuBtn" aria-label="Menu : scénarios, direct, journal, liaison, réglages" aria-expanded="false" aria-controls="menu"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></header>
   <div class="main">
 
@@ -210,6 +246,7 @@ label.chkl{display:flex;gap:8px;align-items:center;font-size:14px}
   </div>
 
   <section class="sec" id="peers" hidden></section>
+  <section class="sec" id="dockLog" hidden><h2>Journal de manœuvre</h2><div class="log" id="log2"></div></section>
   </div>
 
   <div class="menu" id="menu" hidden>
@@ -12749,7 +12786,7 @@ const allScen=()=>SCEN.concat(custom).filter(okScen);
 /* ---------- État ---------- */
 const S={role:'solo',model:store.get('d4g_model','quattro'),view:null,pk:null,battCmd:false,state:'off',bootIdx:0,bootT0:0,shT0:0,bl:0,battLow:false,
   real:{h2s:0,co:0,o2:20.9,lel:0,nh3:0},ramp:{},lat:{h2s:0,co:0,o2:0,lel:0,nh3:0},lvl:{h2s:0,co:0,o2:0,lel:0,nh3:0},
-  level:0,alarmSince:0,silenced:false,pressedSince:0,sc:null,speed:1,editing:false,stu:false,tapT:[]};
+  level:0,alarmSince:0,silenced:false,pressedSince:0,pressCount:0,reactTime:null,sc:null,speed:1,editing:false,stu:false,tapT:[]};
 if(!MODELS[S.model])S.model='quattro';
 GASES.length=0;GASES.push(...MODELS[S.model].gases);
 const resetLat=()=>{S.lat={h2s:0,co:0,o2:0,lel:0,nh3:0}};
@@ -12757,7 +12794,10 @@ const resetLat=()=>{S.lat={h2s:0,co:0,o2:0,lel:0,nh3:0}};
 /* ---------- Journal ---------- */
 const logs=[];
 function log(m){const d=new Date();logs.push({t:d.toTimeString().slice(0,8),m});renderLog();if(S.role==='trainee')sendT({t:'log',m})}
-function renderLog(){const el=$('#log');if(!el)return;el.innerHTML=logs.slice().reverse().map(l=>`<div><time>${l.t}</time><span>${l.m}</span></div>`).join('')||'<div><span class="note">Rien pour l\'instant.</span></div>'}
+function renderLog(){
+  const h=logs.slice().reverse().map(l=>`<div><time>${l.t}</time><span>${l.m}</span></div>`).join('')||'<div><span class="note">Rien pour l\'instant.</span></div>';
+  ['#log','#log2'].forEach(q=>{const el=$(q);if(el)el.innerHTML=h});
+}
 
 /* ---------- Audio ---------- */
 let ac,osc,gain;
@@ -12829,7 +12869,7 @@ function evalAlarms(){
   if(S.state!=='run'){S.level=0;return}
   if(any>was){
     log(`Alarme ${any===2?'HAUTE':'basse'} : ${GASES.filter(g=>S.lvl[g]===any).map(g=>`${META[g].l} ${fmt(g,S.real[g])} ${META[g].u}`).join(', ')}`);
-    if(!was)S.alarmSince=performance.now();
+    if(!was){S.alarmSince=performance.now();S.reactTime=null}
     S.silenced=false;
   }
   if(any===0&&was>0){log('Retour à la normale à l\'écran');S.silenced=false;S.alarmSince=0}
@@ -12925,6 +12965,7 @@ function loop(){
   evalAlarms();
   if(S.state==='run'&&S.pk)GASES.forEach(g=>{const v=S.real[g];if(v>S.pk.max[g])S.pk.max[g]=v;if(v<S.pk.min[g])S.pk.min[g]=v});
   scTick(dt);
+  if(S.role==='trainee'){const sg=[S.state,S.level,S.pressCount,S.battLow,S.silenced].join('|');if(sg!==loop.sg){loop.sg=sg;pushState()}}
   render();
 }
 setInterval(loop,100);
@@ -12933,9 +12974,10 @@ setInterval(loop,100);
 let holdT=null,held=false;
 function shortPress(){
   if(S.state!=='run')return;
+  S.pressCount++;
   buzz.mode='click';buzz.until=performance.now()+60;
   S.bl=performance.now()+10000;
-  if(S.alarmSince>0){log(`Appui sur le bouton ${((performance.now()-S.alarmSince)/1000).toFixed(1)} s après le début de l'alarme`);S.alarmSince=-S.alarmSince}
+  if(S.alarmSince>0){log(`Appui sur le bouton ${((performance.now()-S.alarmSince)/1000).toFixed(1)} s après le début de l'alarme`);S.reactTime=(performance.now()-S.alarmSince)/1000;S.alarmSince=-S.alarmSince}
   else log('Appui court sur le bouton');
   if(S.level>0&&cfg.ackSil){S.silenced=true;log('Sonnerie acquittée')}
   if(cfg.latch&&S.liveLevel===0&&S.level>0){resetLat();log('Alarme verrouillée réinitialisée')}
@@ -13173,21 +13215,31 @@ function drawQR(cv,text){
 function applyRole(){
   $('#app').classList.toggle('trn',S.role==='trainer');
   $('#peers').hidden=S.role!=='trainer';
+  layout();
 }
+function layout(){
+  const dock=S.role==='trainer'&&innerWidth>=900;
+  $('#app').classList.toggle('dock',dock);
+  $('#dockLog').hidden=!dock;$('#hdrInfo').hidden=S.role!=='trainer';
+  menuBtn.hidden=dock;
+  if(dock)menuEl.hidden=false;else if(menuBtn.getAttribute('aria-expanded')!=='true')menuEl.hidden=true;
+  try{fit()}catch(e){}
+}
+addEventListener('resize',()=>{try{layout()}catch(e){}});
 /* formateur */
 function wireTrainer(p){
   p.dc.onopen=()=>{
-    p.open=true;p.target=true;if(!peers.includes(p))peers.push(p);S.role='trainer';applyRole();
+    p.open=true;p.target=true;p.model=S.model;if(!peers.includes(p))peers.push(p);S.role='trainer';applyRole();
     send(p,{t:'model',m:S.model});send(p,{t:'cfg',cfg:pickCfg()});
     if(pair&&pair.p===p){closeCam();pair=null}
     renderLink();renderPeers();
   };
-  p.dc.onclose=()=>{if(p.open){p.open=false;log(`${p.name||'Stagiaire'} déconnecté`)}renderPeers();renderLink()};
+  p.dc.onclose=()=>{if(p.open){p.open=false;log(`${esc(p.name||'Stagiaire')} déconnecté`)}renderPeers();renderLink()};
   p.dc.onmessage=e=>{
     let m;try{m=JSON.parse(e.data)}catch(x){return}
-    if(m.t==='hello'){p.name=String(m.name||'Stagiaire').slice(0,24);log(`${p.name} est lié`);renderPeers();renderLink()}
-    else if(m.t==='st'){p.st=m;renderPeers()}
-    else if(m.t==='log')log(`[${p.name||'Stagiaire'}] ${m.m}`);
+    if(m.t==='hello'){p.name=String(m.name||'Stagiaire').slice(0,24);log(`${esc(p.name)} est lié`);renderPeers();renderLink()}
+    else if(m.t==='st'){p.st=m;if(m.m&&m.m!==p.model){p.model=m.m;renderPeers()}else updatePeer(p)}
+    else if(m.t==='log')log(`[${esc(p.name||'Stagiaire')}] ${esc(m.m)}`);
   };
 }
 async function trainerStart(){
@@ -13226,8 +13278,8 @@ function wireTrainee(t){
 }
 function pushState(){
   if(!tr)return;
-  const v={};GASES.forEach(g=>{v[g]=fmt(g,lastShown[g]??META[g].air)});
-  sendT({t:'st',s:S.state,l:S.level,b:S.battLow,v});
+  const v={},lv={};GASES.forEach(g=>{v[g]=fmt(g,lastShown[g]??META[g].air);lv[g]=S.lvl[g]||0});
+  sendT({t:'st',s:S.state,l:S.level,b:S.battLow,m:S.model,v,lv,sil:S.silenced,pc:S.pressCount,rt:S.reactTime});
 }
 async function traineeStart(){
   audioInit();
@@ -13265,15 +13317,72 @@ function stateOf(p){
   if(s.s==='off')return['Éteint',''];if(s.s==='boot')return['Démarrage','ok'];if(s.s==='shutdown'||s.s==='arret')return['Arrêt',''];
   if(s.l===2)return['Alarme haute','a2'];if(s.l===1)return['Alarme basse','a1'];return['Normal','ok'];
 }
-function renderPeers(){
-  const el=$('#peers');if(!el||S.role!=='trainer'){return}
-  const cards=peers.map((p,i)=>{
-    const[txt,cls]=stateOf(p),v=p.st&&p.st.v;
-    return`<div class="peer${i===0?' first':''}"><label class="chkl"><input type="checkbox" data-peer="${i}"${p.target?' checked':''}${p.open?'':' disabled'}> <b>${(p.name||'Stagiaire').replace(/</g,'&lt;')}</b></label><span class="chip ${cls}">${txt}</span>`+
-      `<div class="pv">${v&&p.open?`${Object.keys(v).map(g=>`${META[g]?META[g].l:g} ${v[g]}`).join(' · ')}${p.st.b?' · batterie faible':''}`:'Aucune donnée'}</div></div>`;
-  }).join('');
-  el.innerHTML=`<h2>Stagiaires liés <span class="note" style="text-transform:none;letter-spacing:0">(les commandes vont aux cases cochées)</span></h2>`+(cards||'<div class="note">Aucun stagiaire lié.</div>');
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const IC={
+ power:'<path d="M12 3v8"/><path d="M6.5 6.5a8 8 0 1 0 11 0"/>',
+ link:'<path d="M3 9a14 14 0 0 1 18 0M6 12.5a9.5 9.5 0 0 1 12 0M9 16a5 5 0 0 1 6 0"/><circle cx="12" cy="19" r="1"/>',
+ bat:'<rect x="3" y="8" width="16" height="9" rx="1.5"/><path d="M21 11v3M6 11v3M9 11v3"/>',
+ snd:'<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>',
+ prs:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/>'};
+const ICN={power:'Alimentation',link:'Liaison',bat:'Batterie',snd:'Sonnerie',prs:'Bouton'};
+const icon=k=>`<span class="ic" data-ic="${k}" title="${ICN[k]}" role="img" aria-label="${ICN[k]}"><svg viewBox="0 0 24 24">${IC[k]}</svg></span>`;
+function cardHTML(p,i){
+  const gs=MODELS[p.model||'quattro'].gases;
+  const tiles=gs.map(g=>`<div class="mt${g==='nh3'?' wide':''}" data-g="${g}"><span class="mv">–</span><small>${META[g].l} ${META[g].u}</small></div>`).join('');
+  return`<div class="pcard" data-uid="${i}"><div class="ph"><label class="chkl"><input type="checkbox" data-peer="${i}"${p.target?' checked':''}> <b class="pn">${esc(p.name||'Stagiaire')}</b></label><span class="chip pst"></span></div>`+
+   `<div class="pscr off">${tiles}</div><div class="icons">${['power','link','bat','snd','prs'].map(icon).join('')}<span class="sp"></span><span class="lamp l1">BASSE</span><span class="lamp l2">HAUTE</span></div>`+
+   `<div class="pmeta"><span class="rt"></span><span class="pcnt"></span></div></div>`;
 }
+const setIc=(el,k,c)=>{const e=el.querySelector(`[data-ic="${k}"]`);if(e)e.className='ic '+c};
+function updatePeer(p){
+  const el=p.el;if(!el)return;
+  const s=p.st||{},on=!!(p.open&&s.s&&s.s!=='off'&&s.s!=='arret');
+  const[txt,cls]=stateOf(p);const pst=el.querySelector('.pst');if(!pst)return;pst.textContent=txt;pst.className='chip pst '+cls;
+  el.querySelector('.pn').textContent=p.name||'Stagiaire';
+  el.querySelector('.pscr').classList.toggle('off',!on);
+  const run=!!(p.open&&s.s==='run'),lv=run?(s.l||0):0;
+  MODELS[p.model||'quattro'].gases.forEach(g=>{
+    const t=el.querySelector(`.mt[data-g="${g}"]`);if(!t)return;
+    t.querySelector('.mv').textContent=on&&s.v&&s.v[g]!=null?s.v[g]:'–';
+    t.classList.toggle('al',run&&!!(s.lv&&s.lv[g]>0));
+  });
+  setIc(el,'power',!p.open?'':(s.s==='run'?'on lit':(s.s==='boot'?'on lit bk1':(s.s==='shutdown'?'warn lit bk1':''))));
+  setIc(el,'link',p.open?'on':'bad lit bk2');
+  setIc(el,'bat',!on?'':(s.b?'warn lit bk1':'on'));
+  setIc(el,'snd',lv?(s.sil?'warn':(lv===2?'bad lit bk2':'warn lit bk1')):'');
+  el.querySelector('.lamp.l1').className='lamp l1'+(lv===1?' on':'');
+  el.querySelector('.lamp.l2').className='lamp l2'+(lv===2?' on':'');
+  if(s.pc!=null){
+    if(p.lastPc!=null&&s.pc>p.lastPc){setIc(el,'prs','on lit');clearTimeout(p.prT);p.prT=setTimeout(()=>setIc(el,'prs',''),1400)}
+    p.lastPc=s.pc;
+  }
+  el.querySelector('.rt').textContent=s.rt!=null?`Réaction : ${s.rt.toFixed(1).replace('.',',')} s`:(lv?'Alarme sans réaction pour l\'instant':'');
+  el.querySelector('.pcnt').textContent=s.pc!=null?`Appuis : ${s.pc}`:'';
+  el.classList.toggle('alarm1',lv===1);el.classList.toggle('alarm2',lv===2);
+  summary();
+}
+function summary(){
+  const live=peers.filter(p=>p.open),a=l=>live.filter(p=>p.st&&p.st.s==='run'&&p.st.l===l).length;
+  const a1=a(1),a2=a(2),n=live.length;
+  const t=`${n} lié${n>1?'s':''}`+(a1?` · ${a1} alarme basse`:'')+(a2?` · ${a2} alarme haute`:'');
+  const e=$('#psum');if(e)e.textContent=t;
+  const h=$('#hdrInfo');if(h)h.textContent='Poste formateur · '+t;
+}
+function renderPeers(){
+  const el=$('#peers');if(!el||S.role!=='trainer')return;
+  const bar='<div class="pbar"><div><b class="pttl">Stagiaires</b> <span class="note" id="psum"></span></div><div class="row"><button class="btn sm" id="pAll">Tous</button><button class="btn sm" id="pNone">Aucun</button><button class="btn sm pri" id="pAir">Air libre (cochés)</button></div></div>';
+  const cards=peers.map(cardHTML).join('');
+  el.innerHTML=bar+(cards?`<div class="pgrid">${cards}</div>`:'<div class="note">Aucun stagiaire lié. Dans le menu Liaison, touchez « Lier un stagiaire ».</div>');
+  peers.forEach((p,i)=>{p.el=el.querySelector(`[data-uid="${i}"]`);p.lastPc=null;updatePeer(p)});
+  summary();
+}
+const syncChecks=()=>$$('#peers [data-peer]').forEach(c=>{c.checked=!!(peers[c.dataset.peer]&&peers[c.dataset.peer].target)});
+$('#peers').addEventListener('click',e=>{
+  const id=e.target.id;
+  if(id==='pAll'){peers.forEach(p=>p.target=p.open);syncChecks()}
+  else if(id==='pNone'){peers.forEach(p=>p.target=false);syncChecks()}
+  else if(id==='pAir'){cmd({t:'set',g:'air',to:0,d:3});log('Direct : retour à l\'air libre')}
+});
 $('#peers').addEventListener('change',e=>{const i=e.target.dataset.peer;if(i!=null&&peers[i])peers[i].target=e.target.checked});
 function renderLink(){
   const el=$('#linkBody');if(!el)return;
@@ -13314,7 +13423,7 @@ function renderLink(){
 }
 $('#linkBody').addEventListener('click',e=>{
   const id=e.target.id;
-  if(id==='lkTr'){linkErr='';trainerStart()}
+  if(id==='lkTr'){linkErr='';if(S.role==='solo'){S.role='trainer';applyRole();renderPeers()}trainerStart()}
   else if(id==='lkSt'){linkErr='';traineeStart()}
   else if(id==='lkScan'){pair.scanning=true;renderLink()}
   else if(id==='lkCancel')cancelPair();
@@ -13338,8 +13447,8 @@ try{document.fonts&&document.fonts.ready.then(fit)}catch(e){}
 const menuBtn=$('#menuBtn'),menuEl=$('#menu');
 function menuSet(o){menuEl.hidden=!o;menuBtn.setAttribute('aria-expanded',o);if(o&&!$('#tab-link').hidden)renderLink()}
 menuBtn.onclick=()=>menuSet(menuEl.hidden);
-document.addEventListener('pointerdown',e=>{if(!menuEl.hidden&&!menuEl.contains(e.target)&&!menuBtn.contains(e.target))menuSet(false)});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!menuEl.hidden){menuSet(false);menuBtn.focus()}});
+document.addEventListener('pointerdown',e=>{if(!$('#app').classList.contains('dock')&&!menuEl.hidden&&!menuEl.contains(e.target)&&!menuBtn.contains(e.target))menuSet(false)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!menuEl.hidden&&!$('#app').classList.contains('dock')){menuSet(false);menuBtn.focus()}});
 
 /* ---------- Arrivée par le QR code du formateur ---------- */
 function showLink(){
@@ -13358,7 +13467,7 @@ function autoJoin(){
 
 $('#modelSel').innerHTML=Object.entries(MODELS).map(([k,m])=>`<option value="${k}">${m.name}</option>`).join('');
 $('#modelSel').value=S.model;$('#modelSel').onchange=e=>chooseModel(e.target.value);
-setUI();fillGasUI();fillSel();renderLog();buildDevice();render();renderLink();fit();autoJoin();
+setUI();fillGasUI();fillSel();renderLog();buildDevice();render();renderLink();fit();autoJoin();addEventListener('hashchange',autoJoin);
 })();
 </script>
 </body></html>
