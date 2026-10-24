@@ -1,0 +1,547 @@
+<title>Simulateur Détecteur 4 Gaz</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#f2c500">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=Pixelify+Sans:wght@500;700&display=swap">
+<style>
+/* Layout: un détecteur grandeur nature centré, un pupitre formateur en onglets dessous. */
+:root{
+  --bg:#f3f1ea; --panel:#ffffff; --fg:#1d1b16; --muted:#6a6558; --line:#d9d4c6;
+  --accent:#c8321a; --accent-fg:#ffffff; --ok:#1f7a3d; --warn:#b36b00;
+  --f-display:"Barlow Condensed","Arial Narrow",sans-serif;
+  --f-body:"Barlow",system-ui,sans-serif;
+  --f-lcd:"Pixelify Sans","Courier New",monospace;
+  /* l'appareil garde ses couleurs dans les deux thèmes */
+  --dev-yellow:#f2c500; --dev-yellow-2:#d4a900; --dev-rubber:#2b2a27; --dev-rubber-2:#3a3935;
+  --lcd-off:#a9b8a8; --lcd-off-ink:#1d2a1f; --lcd-on:#ffb300; --lcd-on-ink:#3a2200;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14120d; --panel:#1e1b14; --fg:#f1ede0; --muted:#a39d8a; --line:#38342a;
+  --accent:#ff6a4d; --accent-fg:#1a0a05; --ok:#58c47c; --warn:#f0b34a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14120d; --panel:#1e1b14; --fg:#f1ede0; --muted:#a39d8a; --line:#38342a;
+  --accent:#ff6a4d; --accent-fg:#1a0a05; --ok:#58c47c; --warn:#f0b34a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.4;
+  padding-block:12px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  -webkit-tap-highlight-color:transparent}
+.wrap{max-width:460px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+h1{font:700 22px/1 var(--f-display);letter-spacing:.04em;text-transform:uppercase;margin:0}
+.sim{font:700 12px var(--f-display);letter-spacing:.14em;background:var(--accent);color:var(--accent-fg);padding:4px 9px;border-radius:3px}
+
+/* ---------- Appareil ---------- */
+.stage{display:flex;flex-direction:column;align-items:center;gap:8px}
+.dev{position:relative;width:min(100%,330px);background:linear-gradient(160deg,var(--dev-yellow),var(--dev-yellow-2));
+  border-radius:34px 34px 26px 26px;padding:16px 16px 14px;border:5px solid var(--dev-rubber);
+  box-shadow:0 0 0 3px var(--dev-rubber-2),0 18px 30px -12px rgba(0,0,0,.55);transition:box-shadow .15s}
+.dev.al1,.dev.al2{animation:glow .5s steps(2,jump-none) infinite}
+@keyframes glow{0%{box-shadow:0 0 0 3px var(--dev-rubber-2),0 0 34px 6px rgba(255,40,20,.85)}100%{box-shadow:0 0 0 3px var(--dev-rubber-2),0 0 6px 0 rgba(255,40,20,.2)}}
+.head{display:grid;grid-template-columns:1fr 1fr;gap:14px 26px;padding:8px 20% 2px}
+.port{aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 40% 35%,#f4f2ea 0 22%,#c9c6bb 23% 46%,#8d8a80 47% 56%,#e9e6dc 57%);
+  border:3px solid var(--dev-rubber);position:relative}
+.port::after{content:"";position:absolute;inset:-9px;border-radius:50%;background:radial-gradient(circle,rgba(255,30,20,.9) 40%,rgba(255,30,20,0) 70%);opacity:0;transition:opacity .04s}
+.leds-on .port::after{opacity:1}
+.belt{display:flex;align-items:center;justify-content:space-between;padding:8px 6px 10px}
+.grille{display:flex;gap:5px}.grille i{width:7px;height:7px;border-radius:50%;background:var(--dev-rubber)}
+.pbtn{width:68px;height:68px;border-radius:50%;border:5px solid var(--dev-rubber);background:radial-gradient(circle at 40% 35%,#ffe35a,#d9b200);
+  box-shadow:inset 0 -4px 8px rgba(0,0,0,.25),0 3px 0 var(--dev-rubber-2);touch-action:none;cursor:pointer;user-select:none;-webkit-user-select:none}
+.pbtn:active,.pbtn.down{transform:translateY(2px);box-shadow:inset 0 3px 8px rgba(0,0,0,.35)}
+.pbtn:focus-visible{outline:3px solid var(--fg);outline-offset:3px}
+.lcdbox{background:var(--dev-rubber);padding:8px;border-radius:12px}
+.lcd{--bgc:var(--lcd-off);--ink:var(--lcd-off-ink);background:var(--bgc);color:var(--ink);border-radius:6px;aspect-ratio:1/1.12;
+  font-family:var(--f-lcd);font-weight:500;overflow:hidden;position:relative;display:flex;flex-direction:column;padding:6px;transition:background .1s}
+.lcd.bl{--bgc:var(--lcd-on);--ink:var(--lcd-on-ink)}
+.lcd.dark{--bgc:#1a1a17;--ink:#1a1a17}
+.lcd .scr{flex:1;display:flex;flex-direction:column;min-height:0;gap:4px}
+.dev-foot{display:flex;justify-content:space-between;align-items:center;padding:8px 4px 0;font:700 13px var(--f-display);letter-spacing:.12em;color:var(--dev-rubber);text-transform:uppercase}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.tile{border:2px solid var(--ink);border-radius:7px;padding:2px 6px 0;display:flex;flex-direction:column;align-items:flex-end;min-width:0;line-height:1}
+.tile .tl{align-self:flex-start;font-size:11px;font-weight:700;white-space:nowrap}
+.tile .tv{font-size:clamp(30px,10.5vw,44px);font-weight:700;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tile.al{animation:inv .5s steps(2,jump-none) infinite}
+@keyframes inv{0%{background:var(--ink);color:var(--bgc)}100%{background:transparent;color:var(--ink)}}
+.band{display:flex;align-items:center;justify-content:center;gap:6px;min-height:34px;font-size:13px;font-weight:700;letter-spacing:.04em;position:relative}
+.band::before,.band::after{content:"";position:absolute;left:0;right:0;top:50%;border-top:2px solid var(--ink);z-index:0}
+.band::after{display:none}
+.band>span{background:var(--bgc);padding:0 4px;z-index:1;display:flex;align-items:center;gap:6px}
+.band.alb>span{animation:inv .5s steps(2,jump-none) infinite}
+.skull{font-size:22px;line-height:1}
+.heart{font-size:24px;animation:hb 1s steps(2,jump-none) infinite}
+@keyframes hb{0%{opacity:1}100%{opacity:.25}}
+.bottom{display:flex;justify-content:space-between;align-items:center;font-size:15px;padding:0 4px;margin-top:auto}
+.bat{display:inline-block;width:20px;height:11px;border:2px solid var(--ink);border-radius:2px;position:relative;margin-left:6px}
+.bat::after{content:"";position:absolute;right:-5px;top:2px;width:3px;height:3px;background:var(--ink)}
+.bat i{display:block;height:100%;background:var(--ink);width:100%}
+.bat.low i{width:18%}.bat.low{animation:hb .8s steps(2,jump-none) infinite}
+.ctr{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;gap:6px;font-size:15px;line-height:1.15}
+.ctr b{font-size:17px}.ctr small{font-size:12px}
+.chk{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;font-size:15px;text-align:left}
+.chk.one{grid-template-columns:1fr;font-size:14px}
+.pill{border:2px solid var(--ink);border-radius:4px;text-align:center;font-size:11px;padding:1px 4px;margin-top:auto}
+.bar{height:12px;border:2px solid var(--ink);border-radius:2px;width:100%}.bar i{display:block;height:100%;background:var(--ink);width:0}
+.hint{font-size:13px;color:var(--muted);text-align:center;min-height:20px}
+
+/* ---------- Pupitre ---------- */
+.tabs{display:flex;gap:4px;border-bottom:2px solid var(--line)}
+.tabs button{flex:1;min-width:0;white-space:nowrap;background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;color:var(--muted);font:700 15px var(--f-display);letter-spacing:.03em;text-transform:uppercase;padding:10px 2px;cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent)}
+.tabs button:focus-visible,.btn:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.sec{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:12px}
+.sec h2{font:700 15px var(--f-display);letter-spacing:.1em;text-transform:uppercase;margin:0;color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{background:var(--panel);color:var(--fg);border:1.5px solid var(--fg);border-radius:6px;font:600 14px var(--f-body);padding:9px 12px;cursor:pointer;min-height:40px}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn.sm{padding:5px 9px;min-height:32px;font-size:13px}
+.btn.warn{border-color:var(--warn);color:var(--warn)}
+.btn:active{transform:translateY(1px)}
+select,input[type=number],input[type=text],textarea{background:var(--bg);color:var(--fg);border:1.5px solid var(--line);border-radius:6px;padding:8px;font:500 14px var(--f-body);min-width:0}
+select{max-width:100%}
+input[type=number]{width:72px}
+label.f{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--muted);font-weight:600}
+label.chkl{display:flex;gap:8px;align-items:center;font-size:14px}
+.presets{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
+.presets .btn{text-align:left;line-height:1.15}
+.presets .btn small{display:block;color:var(--muted);font-weight:500}
+.steps{display:flex;flex-direction:column;gap:2px;font-variant-numeric:tabular-nums}
+.step{display:grid;grid-template-columns:54px 1fr;gap:8px;padding:6px 8px;border-radius:6px;font-size:14px}
+.step.done{color:var(--muted)}
+.step.next{background:var(--bg);outline:1.5px solid var(--accent)}
+.step .tt{font-weight:700}
+.step small{display:block;color:var(--muted)}
+.erow{display:grid;grid-template-columns:62px 1fr 70px 62px 32px;gap:6px;align-items:end}
+.erow input,.erow select{width:100%}
+.clock{font:700 34px var(--f-display);font-variant-numeric:tabular-nums;letter-spacing:.04em}
+.log{max-height:260px;overflow:auto;display:flex;flex-direction:column;gap:3px;font-size:13px;font-variant-numeric:tabular-nums}
+.log div{display:grid;grid-template-columns:62px 1fr;gap:8px}.log time{color:var(--muted)}
+.thr{display:grid;grid-template-columns:54px repeat(2,1fr);gap:6px 8px;align-items:center;font-size:14px}
+.thr input{width:100%}
+.thr b{font:700 14px var(--f-display);letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.note{font-size:13px;color:var(--muted)}
+#scEditor{display:flex;flex-direction:column;gap:10px}
+#scEditor[hidden],.sec[hidden]{display:none}
+.stu .tabs,.stu .panel,.stu header,.stu .hint{display:none}
+.stuexit{display:none;position:fixed;top:env(safe-area-inset-top,0px);right:0;width:56px;height:56px;background:none;border:0;opacity:.01}
+.stu .stuexit{display:block}
+@media (prefers-reduced-motion:reduce){.dev.al1,.dev.al2,.tile.al,.band.alb>span,.heart{animation:none}}
+</style>
+
+<div class="wrap" id="app">
+  <header><h1>Détecteur 4 gaz</h1><span class="sim">SIMULATION</span></header>
+
+  <div class="stage">
+    <div class="dev" id="dev">
+      <div class="head" id="head"><i class="port"></i><i class="port"></i><i class="port"></i><i class="port"></i></div>
+      <div class="belt">
+        <div class="grille"><i></i><i></i><i></i></div>
+        <button class="pbtn" id="pbtn" aria-label="Bouton du détecteur : appui court pour acquitter ou éclairer, maintenir pour allumer ou éteindre"></button>
+      </div>
+      <div class="lcdbox"><div class="lcd dark" id="lcd"><div class="scr" id="scr"></div></div></div>
+      <div class="dev-foot"><span>Simulateur 4 gaz</span><span>Formation</span></div>
+    </div>
+    <div class="hint" id="hint"></div>
+  </div>
+
+  <div class="panel" style="display:flex;flex-direction:column;gap:12px">
+    <div class="tabs" role="tablist" id="tabs">
+      <button role="tab" aria-selected="true" data-tab="scen">Scénarios</button>
+      <button role="tab" aria-selected="false" data-tab="live">Direct</button>
+      <button role="tab" aria-selected="false" data-tab="log">Journal</button>
+      <button role="tab" aria-selected="false" data-tab="set">Réglages</button>
+    </div>
+
+    <section class="sec" id="tab-scen">
+      <div class="row"><label class="f" style="flex:1;min-width:180px">Scénario<select id="scSel"></select></label></div>
+      <div class="note" id="scDesc"></div>
+      <div class="row" style="justify-content:space-between">
+        <div class="clock" id="scClock">T+00:00</div>
+        <div class="row">
+          <button class="btn pri" id="scGo">Démarrer</button>
+          <button class="btn" id="scStop">Arrêter</button>
+        </div>
+      </div>
+      <div class="row"><span class="note">Vitesse</span>
+        <button class="btn sm" data-speed="1" aria-pressed="true">×1</button><button class="btn sm" data-speed="2">×2</button><button class="btn sm" data-speed="5">×5</button>
+        <button class="btn sm" id="scEdit" style="margin-left:auto">Modifier</button></div>
+      <div class="steps" id="scSteps"></div>
+      <div id="scEditor" hidden>
+        <label class="f">Nom<input type="text" id="edName"></label>
+        <div id="edRows" style="display:flex;flex-direction:column;gap:8px"></div>
+        <div class="row"><button class="btn sm" id="edAdd">+ Étape</button><button class="btn sm pri" id="edSave">Enregistrer en perso</button><button class="btn sm warn" id="edDel">Supprimer</button></div>
+        <label class="f">Export / import (JSON)<textarea id="edJson" rows="4" spellcheck="false"></textarea></label>
+        <div class="row"><button class="btn sm" id="edExp">Exporter</button><button class="btn sm" id="edImp">Importer</button></div>
+      </div>
+    </section>
+
+    <section class="sec" id="tab-live" hidden>
+      <h2>Déclencher en direct</h2>
+      <label class="f" style="max-width:260px"><span>Montée en <b id="rampV">8</b> s</span><input type="range" id="ramp" min="1" max="60" value="8"></label>
+      <div class="presets" id="presets"></div>
+      <h2>Valeur libre</h2>
+      <div class="row">
+        <select id="fg"><option value="h2s">H₂S ppm</option><option value="co">CO ppm</option><option value="o2">O₂ %</option><option value="lel">LEL %</option></select>
+        <input type="number" id="fv" step="0.1" value="10"><button class="btn" id="fgo">Appliquer</button>
+      </div>
+      <h2>Appareil</h2>
+      <div class="row"><button class="btn" id="batBtn">Batterie faible : non</button><button class="btn" id="pwrBtn">Allumer / éteindre</button></div>
+    </section>
+
+    <section class="sec" id="tab-log" hidden>
+      <div class="row" style="justify-content:space-between"><h2>Journal de manœuvre</h2><div class="row"><button class="btn sm" id="logCopy">Copier</button><button class="btn sm warn" id="logClr">Effacer</button></div></div>
+      <div class="log" id="log"></div>
+    </section>
+
+    <section class="sec" id="tab-set" hidden>
+      <h2>Seuils d'alarme</h2>
+      <div class="thr" id="thr"></div>
+      <label class="f" style="max-width:240px">O₂ enrichissement (alarme basse à partir de, %)<input type="number" id="o2hi" step="0.1"></label>
+      <label class="f" style="max-width:240px">Jours avant prochain étalonnage<input type="number" id="calDays"></label>
+      <h2>Comportement</h2>
+      <label class="chkl"><input type="checkbox" id="fullBoot"> Séquence de démarrage complète (≈ 30 s)</label>
+      <label class="chkl"><input type="checkbox" id="latch"> Alarmes à verrouillage (reste affichée jusqu'à un appui, à l'air libre)</label>
+      <label class="chkl"><input type="checkbox" id="ackSil"> Un appui coupe le son de l'alarme en cours</label>
+      <h2>Son et vibration</h2>
+      <label class="chkl"><input type="checkbox" id="sound"> Sonnerie</label>
+      <label class="f" style="max-width:240px">Volume<input type="range" id="vol" min="5" max="100"></label>
+      <label class="chkl"><input type="checkbox" id="vib"> Vibration (Android)</label>
+      <div class="row"><button class="btn sm" id="tLow">Tester alarme basse</button><button class="btn sm" id="tHigh">Tester alarme haute</button></div>
+      <h2>Mode stagiaire</h2>
+      <div class="note">Masque tout sauf le détecteur. Pour revenir : toucher cinq fois de suite le coin supérieur droit de l'écran.</div>
+      <div class="row"><button class="btn pri" id="stuBtn">Passer en mode stagiaire</button><button class="btn sm warn" id="rstBtn">Réglages d'usine</button></div>
+      <div class="note">Les alarmes et la sonnerie reproduisent le fonctionnement général d'un détecteur 4 gaz. Les seuils sont ceux relevés sur votre appareil. Cadence et tonalité sont à ajuster avec un enregistrement réel.</div>
+    </section>
+  </div>
+  <button class="stuexit" id="stuExit" aria-label="Quitter le mode stagiaire"></button>
+</div>
+
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const GASES=['h2s','co','o2','lel'];
+const META={h2s:{l:'H₂S',u:'ppm',d:1,air:0},co:{l:'CO',u:'ppm',d:0,air:0},o2:{l:'O₂',u:'%',d:1,air:20.9},lel:{l:'LEL',u:'%',d:0,air:0}};
+const DEFAULTS={low:{h2s:5,co:50,o2:19,lel:20},high:{h2s:10,co:200,o2:18,lel:40},twa:{h2s:5,co:50},o2hi:23.5,calDays:58,
+  fullBoot:true,latch:false,ackSil:false,sound:true,vol:60,vib:true};
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let cfg=Object.assign(JSON.parse(JSON.stringify(DEFAULTS)),store.get('d4g_cfg',{}));
+const saveCfg=()=>store.set('d4g_cfg',cfg);
+
+/* ---------- Scénarios ---------- */
+const SCEN=[
+ {id:'co',name:'Local technique : monoxyde de carbone',desc:'Montée progressive du CO jusqu\'à l\'alarme haute, puis retour à l\'air libre.',steps:[
+  {t:15,g:'co',to:30,d:15,n:'CO sous le seuil, aucune alarme'},
+  {t:45,g:'co',to:80,d:20,n:'Alarme basse attendue à 50 ppm'},
+  {t:90,g:'co',to:250,d:25,n:'Alarme haute attendue à 200 ppm'},
+  {t:150,g:'air',to:0,d:20,n:'Équipe sortie : retour à l\'air libre'}]},
+ {id:'h2s',name:'Égout : sulfure d\'hydrogène',desc:'Intervention en réseau d\'assainissement, H₂S en hausse.',steps:[
+  {t:10,g:'h2s',to:3,d:10,n:'Odeur d\'œuf pourri, sous le seuil'},
+  {t:40,g:'h2s',to:8,d:20,n:'Alarme basse attendue à 5 ppm'},
+  {t:80,g:'h2s',to:15,d:15,n:'Alarme haute attendue à 10 ppm'},
+  {t:140,g:'air',to:0,d:30,n:'Retour à l\'air libre'}]},
+ {id:'o2',name:'Cuve : atmosphère appauvrie en O₂',desc:'L\'oxygène chute lentement dans un volume confiné.',steps:[
+  {t:10,g:'o2',to:19.5,d:30,n:'Baisse discrète, encore au-dessus du seuil'},
+  {t:60,g:'o2',to:17.5,d:30,n:'Alarme basse à 19 %, haute à 18 %'},
+  {t:130,g:'air',to:0,d:30,n:'Ventilation, retour à 20,9 %'}]},
+ {id:'lel',name:'Fuite de gaz : explosimétrie',desc:'Atmosphère explosive qui s\'enrichit : LEL jusqu\'à l\'alarme haute.',steps:[
+  {t:10,g:'lel',to:10,d:20,n:'Présence de gaz, sous le seuil'},
+  {t:40,g:'lel',to:25,d:20,n:'Alarme basse attendue à 20 % LEL'},
+  {t:80,g:'lel',to:50,d:20,n:'Alarme haute attendue à 40 % LEL'},
+  {t:130,g:'air',to:0,d:40,n:'Coupure et ventilation'}]},
+ {id:'feu',name:'Feu de local : CO, O₂ et LEL',desc:'Plusieurs gaz évoluent ensemble, alarmes multiples.',steps:[
+  {t:10,g:'co',to:60,d:20,n:'CO monte, alarme basse'},
+  {t:10,g:'o2',to:20.2,d:20,n:'O₂ légèrement en baisse'},
+  {t:60,g:'co',to:300,d:30,n:'Alarme haute CO'},
+  {t:60,g:'o2',to:18.5,d:40,n:'O₂ sous 19 %'},
+  {t:90,g:'lel',to:25,d:40,n:'LEL en hausse'},
+  {t:160,g:'air',to:0,d:30,n:'Retour à l\'air libre'}]}
+];
+let custom=store.get('d4g_custom',[]);
+const allScen=()=>SCEN.concat(custom);
+
+/* ---------- État ---------- */
+const S={state:'off',bootIdx:0,bootT0:0,shT0:0,bl:0,battLow:false,
+  real:{h2s:0,co:0,o2:20.9,lel:0},ramp:{},lat:{h2s:0,co:0,o2:0,lel:0},lvl:{h2s:0,co:0,o2:0,lel:0},
+  level:0,alarmSince:0,silenced:false,pressedSince:0,sc:null,speed:1,editing:false,stu:false,tapT:[]};
+
+/* ---------- Journal ---------- */
+const logs=[];
+function log(m){const d=new Date();logs.push({t:d.toTimeString().slice(0,8),m});renderLog()}
+function renderLog(){const el=$('#log');if(!el)return;el.innerHTML=logs.slice().reverse().map(l=>`<div><time>${l.t}</time><span>${l.m}</span></div>`).join('')||'<div><span class="note">Rien pour l\'instant.</span></div>'}
+
+/* ---------- Audio ---------- */
+let ac,osc,gain;
+function audioInit(){
+  try{
+    if(ac){ac.state==='suspended'&&ac.resume();return}
+    ac=new(window.AudioContext||window.webkitAudioContext)();
+    osc=ac.createOscillator();osc.type='square';osc.frequency.value=3700;
+    const lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=7000;
+    gain=ac.createGain();gain.gain.value=0;
+    osc.connect(lp);lp.connect(gain);gain.connect(ac.destination);osc.start();
+  }catch(e){}
+}
+function setBuzz(on){try{if(gain)gain.gain.setTargetAtTime(on&&cfg.sound?cfg.vol/100*.5:0,ac.currentTime,.004)}catch(e){}}
+const PAT={
+  low:ms=>{const p=ms%1000;return p<100||(p>=200&&p<300)},
+  high:ms=>ms%250<125,
+  cont:()=>true,
+  boot:ms=>[0,160,320,480].some(s=>ms>=s&&ms<s+80),
+  click:ms=>ms<50
+};
+let buzz={mode:null,t0:0,until:0},prevOn=false,ledOn=false;
+function wantMode(){
+  const now=performance.now();
+  if(S.state==='shutdown')return'cont';
+  if(S.state==='boot'&&S.bootIdx===0&&now-S.bootT0<700)return'boot';
+  if(buzz.mode==='click'&&now<buzz.until)return'click';
+  if(buzz.mode==='test'+'Low'&&now<buzz.until)return'low';
+  if(S.state==='run'&&S.level>0&&!S.silenced)return S.level===2?'high':'low';
+  return null;
+}
+function buzzLoop(){
+  const now=performance.now();let m=wantMode();
+  if(buzz.test&&now<buzz.test.until)m=buzz.test.mode;
+  if(m!==buzz.cur){buzz.cur=m;buzz.t0=now}
+  const on=m?PAT[m](now-buzz.t0):false;
+  setBuzz(on);
+  if(on&&!prevOn&&cfg.vib&&m!=='click'&&navigator.vibrate){try{navigator.vibrate(m==='high'?110:90)}catch(e){}}
+  prevOn=on;
+  const led=(S.state==='run'&&S.level>0)?(m?on:true&&((now%500)<250)):(S.state==='shutdown'||m==='boot'?on||m==='cont':false);
+  if(led!==ledOn){ledOn=led;$('#head').classList.toggle('leds-on',led)}
+}
+setInterval(buzzLoop,20);
+
+/* ---------- Valeurs et alarmes ---------- */
+function setTarget(g,to,durS){
+  const cur=S.real[g];
+  if(g==='air'){GASES.forEach(x=>setTarget(x,META[x].air,durS));return}
+  S.ramp[g]={from:cur,to,t0:performance.now(),dur:Math.max(.05,durS/S.speed)*1000};
+}
+function stepValues(){
+  const now=performance.now();
+  for(const g of GASES){const r=S.ramp[g];if(!r)continue;const k=Math.min(1,(now-r.t0)/r.dur);S.real[g]=r.from+(r.to-r.from)*k;if(k>=1)delete S.ramp[g]}
+}
+const shown=g=>{let v=S.real[g];if(g!=='o2'&&v>.6)v*=1+(Math.random()-.5)*.03;if(g==='o2'&&Math.abs(v-20.9)>.05)v+=(Math.random()-.5)*.1;return Math.max(0,v)};
+const fmt=(g,v)=>META[g].d?v.toFixed(META[g].d):String(Math.round(v));
+function levelOf(g,v){
+  if(g==='o2'){if(v<=cfg.high.o2)return 2;if(v<=cfg.low.o2||v>=cfg.o2hi)return 1;return 0}
+  if(v>=cfg.high[g])return 2;if(v>=cfg.low[g])return 1;return 0}
+let lastShown={},lastFrame=0;
+function evalAlarms(){
+  const was=S.level;let any=0,live=0;
+  for(const g of GASES){
+    const l=levelOf(g,S.real[g]);live=Math.max(live,l);
+    if(cfg.latch){S.lat[g]=Math.max(S.lat[g],l);S.lvl[g]=S.lat[g]}else S.lvl[g]=l;
+    any=Math.max(any,S.lvl[g]);
+  }
+  S.liveLevel=live;
+  if(S.state!=='run'){S.level=0;return}
+  if(any>was){
+    log(`Alarme ${any===2?'HAUTE':'basse'} : ${GASES.filter(g=>S.lvl[g]===any).map(g=>`${META[g].l} ${fmt(g,S.real[g])} ${META[g].u}`).join(', ')}`);
+    if(!was)S.alarmSince=performance.now();
+    S.silenced=false;
+  }
+  if(any===0&&was>0){log('Retour à la normale à l\'écran');S.silenced=false;S.alarmSince=0}
+  S.level=any;
+}
+
+/* ---------- Écrans LCD ---------- */
+const CHECK='☑',BOX='☐';
+const tile=(g,txt,al)=>`<div class="tile${al?' al':''}"><span class="tl">${META[g].l} ${META[g].u}</span><span class="tv">${txt}</span></div>`;
+const band=(inner,al)=>`<div class="band${al?' alb':''}"><span>${inner}</span></div>`;
+const bat=()=>`<span class="bat${S.battLow?' low':''}"><i></i></span>`;
+function nowStr(){const d=new Date(),p=n=>String(n).padStart(2,'0');let h=d.getHours(),ap=h>=12?'pm':'am';h=h%12||12;return`${h}:${p(d.getMinutes())} ${ap}<br>${p(d.getDate())}-${p(d.getMonth()+1)}-${d.getFullYear()}`}
+const pillBtn='<div class="pill">mise en marche</div>';
+function thrScreen(title,v,withBottom,icon){
+  return `<div class="grid2">${tile('h2s',v.h2s.toFixed(1))}${tile('co',String(v.co))}</div>`+band(`<span class="skull">${icon}</span>${title}`)+
+    (withBottom?`<div class="grid2">${tile('o2',v.o2.toFixed(1))}${tile('lel',String(v.lel))}</div>`:'<div style="flex:1"></div>')+pillBtn;
+}
+const BOOT=[
+ {id:'splash',ms:2500,html:()=>`<div class="ctr"><b style="font-size:24px">DÉTECTEUR<br>4 GAZ</b><b>SIMULATION</b><small>H₂S · CO · O₂ · LEL</small></div>`},
+ {id:'fw',ms:3000,html:()=>`<div class="ctr"><b>Simulateur 4 gaz</b><small>Version SIM 1.0<br>Usage formation uniquement</small><small>${nowStr()}</small></div>`+pillBtn},
+ {id:'twa',ms:3000,html:()=>thrScreen('TWA ALARM',{h2s:cfg.twa.h2s,co:cfg.twa.co},false,'◔')},
+ {id:'low',ms:3000,html:()=>thrScreen('BASSE ALARM',{h2s:cfg.low.h2s,co:cfg.low.co,o2:cfg.low.o2,lel:cfg.low.lel},true,'☠')},
+ {id:'high',ms:4000,html:()=>thrScreen('HAUTE ALARM',{h2s:cfg.high.h2s,co:cfg.high.co,o2:cfg.high.o2,lel:cfg.high.lel},true,'☠')},
+ {id:'zero',ms:5000,html:(el)=>`<div class="ctr"><b>Mise à zéro auto</b><span class="heart" style="font-size:30px">${el<2500?'⌛':'⏳'} ♥</span><small>O₂ ${el>3000?CHECK:BOX} &nbsp; LEL ${el>4000?CHECK:BOX}</small></div>`+pillBtn},
+ {id:'test',ms:3000,html:()=>`<div class="ctr"><b>Autotest des<br>capteurs terminé</b><span style="font-size:34px">✔</span><div class="chk" style="grid-template-columns:1fr 1fr"><span>H₂S ${CHECK}</span><span>CO ${CHECK}</span><span>O₂ ${CHECK}</span><span>LEL ${CHECK}</span></div></div>`},
+ {id:'cal',ms:3000,html:()=>`<div class="grid2"><div class="tile"><span class="tl">H₂S jours</span><span class="tv">${cfg.calDays}</span></div><div class="tile"><span class="tl">CO jours</span><span class="tv">${cfg.calDays}</span></div></div>`+band('Prochain étal.')+`<div class="grid2"><div class="tile"><span class="tl">O₂ jours</span><span class="tv">${cfg.calDays}</span></div><div class="tile"><span class="tl">LEL jours</span><span class="tv">${cfg.calDays}</span></div></div>`+pillBtn},
+ {id:'done',ms:3000,html:()=>`<div class="ctr" style="align-items:stretch"><b style="text-align:center">Démarrage terminé</b><div class="chk one">${['Matériel','Batterie','Mémoire','Horloge','Capteurs','Mise à zéro auto.'].map(x=>`<span>${CHECK} ${x}</span>`).join('')}</div></div>`+pillBtn}
+];
+function runScreen(){
+  const lv=S.lvl;const t=g=>tile(g,fmt(g,lastShown[g]??S.real[g]),lv[g]>0);
+  const mid=S.level>0?band(`<span class="skull">☠</span>${S.level===2?'HAUTE':'BASSE'} ALARM`,true):band('<span class="heart">♥</span>');
+  return `<div class="grid2">${t('h2s')}${t('co')}</div>${mid}<div class="grid2">${t('o2')}${t('lel')}</div><div class="bottom"><span>✔ ⚗</span>${bat()}</div>`;
+}
+let lastHTML='';
+function render(){
+  const lcd=$('#lcd');let html='',bl=false,dark=false;
+  switch(S.state){
+    case'off':dark=true;html='';break;
+    case'boot':{const el=performance.now()-S.bootT0;const sc=BOOT[S.bootIdx];html=sc.html(el-S.bootStart);bl=true;break}
+    case'run':html=runScreen();bl=performance.now()<S.bl||S.level>0;break;
+    case'shutdown':{const k=Math.min(1,(performance.now()-S.shT0)/2100);html=`<div class="ctr"><b>Arrêt en cours…</b><div class="bar"><i style="width:${k*100}%"></i></div><small>Maintenir pour éteindre</small></div>`;bl=true;break}
+    case'arret':html='<div class="ctr"><b>ARRÊT</b></div>';bl=true;break;
+  }
+  if(html!==lastHTML){$('#scr').innerHTML=html;lastHTML=html}
+  lcd.classList.toggle('dark',dark);lcd.classList.toggle('bl',bl);
+  $('#dev').className='dev'+(S.state==='run'&&S.level?` al${S.level}`:'');
+  const h=$('#hint');
+  h.textContent=S.state==='off'?'Appareil éteint. Maintenir le bouton jaune 2 secondes pour allumer.':(S.state==='run'&&S.level===0?'Appui court : rétroéclairage. Maintenir : extinction.':'');
+}
+
+/* ---------- Séquence d'état ---------- */
+function bootNext(first){
+  const q=cfg.fullBoot?1:.28;
+  if(first){S.bootIdx=0}else S.bootIdx++;
+  if(S.bootIdx>=BOOT.length){S.state='run';S.bl=performance.now()+4000;log('Détecteur prêt');return}
+  S.bootStart=performance.now()-S.bootT0;S.bootDue=performance.now()+BOOT[S.bootIdx].ms*q;
+}
+function powerOn(){
+  audioInit();
+  S.state='boot';S.bootT0=performance.now();S.lat={h2s:0,co:0,o2:0,lel:0};S.level=0;S.silenced=false;
+  bootNext(true);log('Détecteur allumé');
+  try{navigator.wakeLock&&navigator.wakeLock.request('screen').catch(()=>{})}catch(e){}
+}
+function loop(){
+  const now=performance.now(),dt=(now-(loop.p||now))/1000;loop.p=now;
+  stepValues();
+  if(S.state==='boot'&&now>=S.bootDue)bootNext(false);
+  if(S.state==='shutdown'&&now-S.shT0>=2100){S.state='arret';S.arretT=now+1400;log('Détecteur éteint')}
+  if(S.state==='arret'&&now>=S.arretT)S.state='off';
+  if(now-lastFrame>=250||!lastFrame){GASES.forEach(g=>lastShown[g]=shown(g));lastFrame=now}
+  evalAlarms();
+  scTick(dt);
+  render();
+}
+setInterval(loop,100);
+
+/* ---------- Bouton ---------- */
+const btn=$('#pbtn');let holdT=null,held=false,downAt=0;
+btn.addEventListener('pointerdown',e=>{
+  e.preventDefault();audioInit();btn.setPointerCapture&&btn.setPointerCapture(e.pointerId);btn.classList.add('down');
+  held=false;downAt=performance.now();
+  if(S.state==='off')holdT=setTimeout(()=>{held=true;powerOn()},2000);
+  else if(S.state==='run')holdT=setTimeout(()=>{held=true;S.state='shutdown';S.shT0=performance.now();log('Arrêt demandé (bouton maintenu)')},700);
+});
+function release(){
+  btn.classList.remove('down');clearTimeout(holdT);
+  if(S.state==='shutdown'){S.state='run';log('Arrêt annulé');return}
+  if(held||S.state!=='run')return;
+  buzz.mode='click';buzz.until=performance.now()+60;
+  S.bl=performance.now()+10000;
+  if(S.alarmSince){log(`Appui sur le bouton ${((performance.now()-S.alarmSince)/1000).toFixed(1)} s après le début de l'alarme`);S.alarmSince=-Math.abs(S.alarmSince)}
+  else log('Appui court sur le bouton');
+  if(S.level>0&&cfg.ackSil){S.silenced=true;log('Sonnerie acquittée')}
+  if(cfg.latch&&S.liveLevel===0&&S.level>0){S.lat={h2s:0,co:0,o2:0,lel:0};log('Alarme verrouillée réinitialisée')}
+}
+btn.addEventListener('pointerup',release);btn.addEventListener('pointercancel',release);
+btn.addEventListener('keydown',e=>{if((e.key===' '||e.key==='Enter')&&!e.repeat){btn.dispatchEvent(new PointerEvent('pointerdown',{pointerId:1}))}});
+btn.addEventListener('keyup',e=>{if(e.key===' '||e.key==='Enter')release()});
+btn.addEventListener('contextmenu',e=>e.preventDefault());
+
+/* ---------- Scénarios : exécution ---------- */
+const curScen=()=>allScen().find(s=>s.id===$('#scSel').value)||allScen()[0];
+const mmss=s=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+function scTick(dt){
+  const sc=S.sc;if(!sc||sc.paused){return}
+  sc.el+=dt*S.speed;
+  for(const [i,st] of sc.def.steps.entries()){
+    if(!sc.fired.has(i)&&st.t<=sc.el){sc.fired.add(i);setTarget(st.g,st.to,st.d);log(`Scénario : ${st.g==='air'?'retour à l\'air libre':`${META[st.g].l} → ${st.to} ${META[st.g].u} en ${st.d} s`}${st.n?` (${st.n})`:''}`)}
+  }
+  if(sc.fired.size===sc.def.steps.length&&sc.el>Math.max(...sc.def.steps.map(s=>s.t+s.d))){log('Scénario terminé');S.sc=null}
+  scRender();
+}
+function scRender(){
+  const def=(S.sc&&S.sc.def)||curScen();const el=S.sc?S.sc.el:0;
+  $('#scClock').textContent='T+'+mmss(el);
+  $('#scGo').textContent=!S.sc?'Démarrer':(S.sc.paused?'Reprendre':'Pause');
+  const nextI=def.steps.findIndex((s,i)=>!(S.sc&&S.sc.fired.has(i)));
+  $('#scSteps').innerHTML=def.steps.map((s,i)=>{const done=S.sc&&S.sc.fired.has(i);
+    const what=s.g==='air'?'Retour à l\'air libre':`${META[s.g].l} → ${s.to} ${META[s.g].u} en ${s.d} s`;
+    return`<div class="step${done?' done':''}${S.sc&&i===nextI?' next':''}"><span class="tt">${mmss(s.t)}</span><span>${what}${s.n?`<small>${s.n}</small>`:''}</span></div>`}).join('');
+}
+$('#scGo').onclick=()=>{
+  audioInit();
+  if(!S.sc){S.sc={def:curScen(),el:0,paused:false,fired:new Set()};log(`Scénario lancé : ${S.sc.def.name}`)}
+  else{S.sc.paused=!S.sc.paused;log(S.sc.paused?'Scénario en pause':'Scénario repris')}
+  scRender();
+};
+$('#scStop').onclick=()=>{if(S.sc){log('Scénario arrêté, retour à l\'air libre');S.sc=null}setTarget('air',0,3);scRender()};
+$$('[data-speed]').forEach(b=>b.onclick=()=>{S.speed=+b.dataset.speed;$$('[data-speed]').forEach(x=>x.setAttribute('aria-pressed',x===b))});
+function fillSel(keep){
+  const sel=$('#scSel');sel.innerHTML=allScen().map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  if(keep&&allScen().some(s=>s.id===keep))sel.value=keep;
+  $('#scDesc').textContent=curScen().desc||'';scRender();
+}
+$('#scSel').onchange=()=>{if(S.sc)return;$('#scDesc').textContent=curScen().desc||'';scRender();if(S.editing)edLoad()};
+
+/* ---------- Éditeur ---------- */
+const gOpts=cur=>[['h2s','H₂S'],['co','CO'],['o2','O₂'],['lel','LEL'],['air','Air libre']].map(([v,l])=>`<option value="${v}"${v===cur?' selected':''}>${l}</option>`).join('');
+let ed=null;
+function edLoad(){const d=curScen();ed=JSON.parse(JSON.stringify(d));$('#edName').value=ed.name;edRows();}
+function edRows(){
+  $('#edRows').innerHTML=ed.steps.map((s,i)=>`<div class="erow" data-i="${i}">
+   <label class="f">À (s)<input type="number" data-k="t" value="${s.t}" min="0"></label>
+   <label class="f">Gaz<select data-k="g">${gOpts(s.g)}</select></label>
+   <label class="f">Valeur<input type="number" data-k="to" value="${s.to}" step="0.1"${s.g==='air'?' disabled':''}></label>
+   <label class="f">Durée<input type="number" data-k="d" value="${s.d}" min="1"></label>
+   <button class="btn sm" data-del="${i}" aria-label="Supprimer l'étape">×</button></div>`).join('');
+  $('#edJson').value=JSON.stringify(ed);
+}
+$('#edRows').addEventListener('input',e=>{const r=e.target.closest('.erow');if(!r)return;const s=ed.steps[+r.dataset.i],k=e.target.dataset.k;s[k]=k==='g'?e.target.value:parseFloat(e.target.value)||0;if(k==='g')edRows()});
+$('#edRows').addEventListener('click',e=>{const b=e.target.closest('[data-del]');if(!b)return;ed.steps.splice(+b.dataset.del,1);edRows()});
+$('#edAdd').onclick=()=>{const last=ed.steps[ed.steps.length-1];ed.steps.push({t:(last?last.t+20:10),g:'co',to:60,d:15,n:''});edRows()};
+$('#edName').oninput=e=>{ed.name=e.target.value};
+$('#edSave').onclick=()=>{
+  ed.steps.sort((a,b)=>a.t-b.t);
+  const isC=custom.some(c=>c.id===ed.id);
+  if(!isC){ed.id='c'+Date.now();ed.name=ed.name+(SCEN.some(s=>s.name===ed.name)?' (perso)':'');}
+  custom=custom.filter(c=>c.id!==ed.id).concat([ed]);store.set('d4g_custom',custom);fillSel(ed.id);edLoad();log(`Scénario enregistré : ${ed.name}`);
+};
+$('#edDel').onclick=()=>{const d=curScen();if(!custom.some(c=>c.id===d.id))return;custom=custom.filter(c=>c.id!==d.id);store.set('d4g_custom',custom);fillSel();edLoad()};
+$('#edExp').onclick=()=>{$('#edJson').value=JSON.stringify(ed);$('#edJson').select();try{navigator.clipboard.writeText($('#edJson').value).catch(()=>{})}catch(e){}};
+$('#edImp').onclick=()=>{try{const o=JSON.parse($('#edJson').value);if(!o.steps||!o.name)throw 0;o.id='c'+Date.now();custom.push(o);store.set('d4g_custom',custom);fillSel(o.id);edLoad()}catch(e){$('#edJson').value='JSON invalide'}};
+$('#scEdit').onclick=()=>{S.editing=!S.editing;$('#scEditor').hidden=!S.editing;$('#scEdit').textContent=S.editing?'Fermer':'Modifier';if(S.editing)edLoad()};
+
+/* ---------- Direct ---------- */
+const PRE=[['co',30,'CO 30','sous le seuil'],['co',80,'CO 80','alarme basse'],['co',250,'CO 250','alarme haute'],
+ ['h2s',7,'H₂S 7','alarme basse'],['h2s',15,'H₂S 15','alarme haute'],['o2',18.6,'O₂ 18,6','alarme basse'],['o2',17,'O₂ 17,0','alarme haute'],
+ ['lel',25,'LEL 25','alarme basse'],['lel',50,'LEL 50','alarme haute'],['air',0,'Air libre','tout revient à zéro']];
+$('#presets').innerHTML=PRE.map((p,i)=>`<button class="btn" data-p="${i}">${p[2]}<small>${p[3]}</small></button>`).join('');
+$('#presets').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(!b)return;audioInit();const p=PRE[b.dataset.p];setTarget(p[0],p[1],+$('#ramp').value);log(`Direct : ${p[2]}`)});
+$('#ramp').oninput=e=>$('#rampV').textContent=e.target.value;
+$('#fgo').onclick=()=>{audioInit();const g=$('#fg').value,v=parseFloat($('#fv').value);if(isNaN(v))return;setTarget(g,v,+$('#ramp').value);log(`Direct : ${META[g].l} → ${v} ${META[g].u}`)};
+$('#batBtn').onclick=()=>{S.battLow=!S.battLow;$('#batBtn').textContent='Batterie faible : '+(S.battLow?'oui':'non');log(S.battLow?'Batterie faible simulée':'Batterie normale')};
+$('#pwrBtn').onclick=()=>{audioInit();if(S.state==='off')powerOn();else if(S.state==='run'){S.state='shutdown';S.shT0=performance.now();S.autoOff=true;setTimeout(()=>{if(S.state==='shutdown')S.shT0=performance.now()-2100},50)}};
+$('#logCopy').onclick=()=>{const t=logs.map(l=>`${l.t}  ${l.m}`).join('\n');try{navigator.clipboard.writeText(t).catch(()=>{})}catch(e){}$('#logCopy').textContent='Copié';setTimeout(()=>$('#logCopy').textContent='Copier',1200)};
+$('#logClr').onclick=()=>{logs.length=0;renderLog()};
+
+/* ---------- Réglages ---------- */
+function thrUI(){
+  $('#thr').innerHTML='<span></span><b>Basse</b><b>Haute</b>'+GASES.map(g=>`<b>${META[g].l}</b><input type="number" step="0.1" data-th="low.${g}" value="${cfg.low[g]}" aria-label="${META[g].l} alarme basse"><input type="number" step="0.1" data-th="high.${g}" value="${cfg.high[g]}" aria-label="${META[g].l} alarme haute">`).join('')+
+   '<span class="note" style="grid-column:1/-1">Pour O₂ l\'alarme se déclenche sous le seuil, pour les autres gaz au-dessus.</span>';
+}
+$('#thr').addEventListener('input',e=>{const k=e.target.dataset.th;if(!k)return;const[a,g]=k.split('.');const v=parseFloat(e.target.value);if(!isNaN(v)){cfg[a][g]=v;if(a==='low'&&(g==='h2s'||g==='co'))cfg.twa[g]=v;saveCfg()}});
+function setUI(){
+  $('#o2hi').value=cfg.o2hi;$('#calDays').value=cfg.calDays;$('#fullBoot').checked=cfg.fullBoot;$('#latch').checked=cfg.latch;$('#ackSil').checked=cfg.ackSil;
+  $('#sound').checked=cfg.sound;$('#vol').value=cfg.vol;$('#vib').checked=cfg.vib;thrUI();
+}
+const bindC=(id,k,num)=>$('#'+id).addEventListener('input',e=>{const t=e.target;const v=t.type==='checkbox'?t.checked:(num?parseFloat(t.value):t.value);if(!(num&&isNaN(v))){cfg[k]=v;saveCfg()}});
+bindC('o2hi','o2hi',1);bindC('calDays','calDays',1);bindC('fullBoot','fullBoot');bindC('latch','latch');bindC('ackSil','ackSil');bindC('sound','sound');bindC('vol','vol',1);bindC('vib','vib');
+$('#tLow').onclick=()=>{audioInit();buzz.test={mode:'low',until:performance.now()+3000}};
+$('#tHigh').onclick=()=>{audioInit();buzz.test={mode:'high',until:performance.now()+3000}};
+$('#rstBtn').onclick=()=>{cfg=JSON.parse(JSON.stringify(DEFAULTS));saveCfg();setUI()};
+
+/* ---------- Mode stagiaire et onglets ---------- */
+$('#stuBtn').onclick=()=>{S.stu=true;$('#app').classList.add('stu');audioInit()};
+$('#stuExit').onclick=()=>{const n=Date.now();S.tapT=S.tapT.filter(t=>n-t<2000);S.tapT.push(n);if(S.tapT.length>=5){S.stu=false;S.tapT=[];$('#app').classList.remove('stu')}};
+$('#tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;
+  $$('#tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  ['scen','live','log','set'].forEach(t=>{$('#tab-'+t).hidden=t!==b.dataset.tab});
+  if(b.dataset.tab==='log')renderLog()});
+try{if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ac&&ac.state==='suspended')ac.resume()});
+
+setUI();fillSel();renderLog();render();
+})();
+</script>
