@@ -155,6 +155,38 @@ label.chkl{display:flex;gap:8px;align-items:center;font-size:14px}
 .linktxt{width:100%;font:12px/1.3 ui-monospace,monospace}
 .lk{display:flex;flex-direction:column;gap:12px}
 .lk .err{color:var(--accent);font-weight:600}
+.dev.micro5{border-radius:50% 50% 26px 26px / 12% 12% 26px 26px;padding:10px 12px 14px}
+.dev.micro5 .lcd{aspect-ratio:1/1.34}
+.dev.micro5 .port::after{display:none}
+.head5{position:relative;height:218px}
+.head5 .port{position:absolute;transform:translate(-50%,-50%);border-width:4px}
+.head5 .big{left:50%;top:30%;width:112px}
+.head5 .p-l{left:19%;top:70%;width:66px}.head5 .p-r{left:81%;top:70%;width:66px}.head5 .p-b{left:50%;top:88%;width:66px}
+.head5 .pin{position:absolute;left:50%;top:60%;width:13px;height:13px;border-radius:50%;background:radial-gradient(circle,#2a2a28 32%,#c9a04a 34%);transform:translate(-50%,-50%)}
+.head5 .bar{position:absolute;top:10px;width:78px;height:19px;border-radius:12px;background:linear-gradient(#f7f3e0,#d3cdb0);border:3px solid var(--dev-rubber)}
+.head5 .bar.l{left:3%;transform:rotate(-34deg);top:30px}.head5 .bar.r{right:3%;transform:rotate(34deg);top:30px}
+.head5.leds-on .bar{background:#ff2a1c;box-shadow:0 0 18px 7px rgba(255,40,20,.9)}
+.mid5{display:grid;grid-template-columns:40px 1fr 40px;gap:6px;align-items:center}
+.mid5 .side{display:flex;flex-direction:column;align-items:center;gap:34px}
+.rb{width:38px;height:38px;border-radius:50%;border:4px solid var(--dev-rubber);cursor:pointer;touch-action:none;padding:0;position:relative;box-shadow:inset 0 -3px 5px rgba(0,0,0,.25)}
+.rb:active,.rb.down{transform:translateY(2px)}
+.rb:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+.rb.pw{background:radial-gradient(circle,#f2ecb0 28%,#9ad24a 30% 72%,#e5e0a0 74%)}
+.rb.en{background:radial-gradient(circle,#dfe6ff 28%,#4d72d8 30% 72%,#c9d3ff 74%)}
+.rb.up,.rb.dn{background:#c9c6bb}
+.rb.up::after,.rb.dn::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:6px solid transparent}
+.rb.up::after{border-bottom:9px solid #55524a;border-top:0}
+.rb.dn::after{border-top:9px solid #55524a;border-bottom:0}
+.m5{display:flex;flex-direction:column;gap:7px;flex:1}
+.m5 .r2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.t5{display:flex;flex-direction:column;min-width:0}
+.t5 .v{font-size:32px;font-weight:700;line-height:1;text-align:right;font-variant-numeric:tabular-nums;padding:0 3px}
+.t5.big .v{font-size:46px}
+.t5 .ln{display:flex;justify-content:space-between;border-top:3px solid var(--ink);border-left:2px solid var(--ink);border-right:2px solid var(--ink);font-size:11px;font-weight:700;padding:0 3px;line-height:1.3}
+.t5.al{animation:inv .5s steps(2,jump-none) infinite}
+.m5 .bottom{font-size:12px}.m5 .bottom b{animation:hb .6s steps(2,jump-none) infinite}
+.r5{display:grid;grid-template-columns:46px 1fr 40px;gap:4px;align-items:baseline;font-size:14px;padding:0 4px}
+.r5 span{text-align:right;font-weight:700;font-size:19px}
 @media (prefers-reduced-motion:reduce){.dev.al1,.dev.al2,.tile.al,.band.alb>span,.heart{animation:none}}
 </style>
 
@@ -236,6 +268,8 @@ label.chkl{display:flex;gap:8px;align-items:center;font-size:14px}
     </section>
 
     <section class="sec" id="tab-set" hidden>
+      <h2>Modèle de détecteur</h2>
+      <label class="f" style="max-width:340px"><select id="modelSel"></select></label>
       <h2>Seuils d'alarme</h2>
       <div class="thr" id="thr"></div>
       <label class="f" style="max-width:240px">O₂ enrichissement (alarme basse à partir de, %)<input type="number" id="o2hi" step="0.1"></label>
@@ -12663,11 +12697,15 @@ function findAlignmentPattern(matrix, alignmentPatternQuads, topRight, topLeft, 
 'use strict';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const GASES=['h2s','co','o2','lel'];
-const META={h2s:{l:'H₂S',u:'ppm',d:1,air:0},co:{l:'CO',u:'ppm',d:0,air:0},o2:{l:'O₂',u:'%',d:1,air:20.9},lel:{l:'LEL',u:'%',d:0,air:0}};
-const DEFAULTS={low:{h2s:5,co:50,o2:19,lel:20},high:{h2s:10,co:200,o2:18,lel:40},twa:{h2s:5,co:50},o2hi:23.5,calDays:58,
+const MODELS={
+ quattro:{name:'Détecteur 4 gaz (type Quattro)',gases:['h2s','co','o2','lel'],btn:'jaune'},
+ micro5:{name:'Détecteur 5 gaz avec NH₃ (type Micro 5)',gases:['nh3','h2s','co','o2','lel'],btn:'vert'}};
+const META={nh3:{l:'NH₃',u:'ppm',d:0,air:0},h2s:{l:'H₂S',u:'ppm',d:1,air:0},co:{l:'CO',u:'ppm',d:0,air:0},o2:{l:'O₂',u:'%',d:1,air:20.9},lel:{l:'LEL',u:'%',d:0,air:0}};
+const DEFAULTS={low:{h2s:5,co:50,o2:19,lel:20,nh3:25},high:{h2s:10,co:200,o2:18,lel:40,nh3:50},twa:{h2s:5,co:50},o2hi:23.5,calDays:58,
   fullBoot:true,latch:false,ackSil:false,sound:true,vol:60,vib:true};
 const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 let cfg=Object.assign(JSON.parse(JSON.stringify(DEFAULTS)),store.get('d4g_cfg',{}));
+cfg.low=Object.assign({},DEFAULTS.low,cfg.low);cfg.high=Object.assign({},DEFAULTS.high,cfg.high);cfg.twa=Object.assign({},DEFAULTS.twa,cfg.twa);
 const saveCfg=()=>{store.set('d4g_cfg',cfg);if(S.role==='trainer')syncCfg()};
 
 /* ---------- Scénarios ---------- */
@@ -12697,15 +12735,24 @@ const SCEN=[
   {t:60,g:'co',to:300,d:30,n:'Alarme haute CO'},
   {t:60,g:'o2',to:18.5,d:40,n:'O₂ sous 19 %'},
   {t:90,g:'lel',to:25,d:40,n:'LEL en hausse'},
-  {t:160,g:'air',to:0,d:30,n:'Retour à l\'air libre'}]}
+  {t:160,g:'air',to:0,d:30,n:'Retour à l\'air libre'}]},
+ {id:'nh3',name:'Installation frigorifique : ammoniac',desc:'Fuite de NH₃ dans un local technique, jusqu\'à l\'alarme haute. Réservé au détecteur 5 gaz.',steps:[
+  {t:10,g:'nh3',to:15,d:15,n:'Odeur piquante, sous le seuil'},
+  {t:40,g:'nh3',to:35,d:20,n:'Alarme basse attendue à 25 ppm'},
+  {t:80,g:'nh3',to:70,d:20,n:'Alarme haute attendue à 50 ppm'},
+  {t:140,g:'air',to:0,d:30,n:'Évacuation et ventilation'}]}
 ];
 let custom=store.get('d4g_custom',[]);
-const allScen=()=>SCEN.concat(custom);
+const okScen=sc=>sc.steps.every(st=>st.g==='air'||GASES.includes(st.g));
+const allScen=()=>SCEN.concat(custom).filter(okScen);
 
 /* ---------- État ---------- */
-const S={role:'solo',battCmd:false,state:'off',bootIdx:0,bootT0:0,shT0:0,bl:0,battLow:false,
-  real:{h2s:0,co:0,o2:20.9,lel:0},ramp:{},lat:{h2s:0,co:0,o2:0,lel:0},lvl:{h2s:0,co:0,o2:0,lel:0},
+const S={role:'solo',model:store.get('d4g_model','quattro'),view:null,pk:null,battCmd:false,state:'off',bootIdx:0,bootT0:0,shT0:0,bl:0,battLow:false,
+  real:{h2s:0,co:0,o2:20.9,lel:0,nh3:0},ramp:{},lat:{h2s:0,co:0,o2:0,lel:0,nh3:0},lvl:{h2s:0,co:0,o2:0,lel:0,nh3:0},
   level:0,alarmSince:0,silenced:false,pressedSince:0,sc:null,speed:1,editing:false,stu:false,tapT:[]};
+if(!MODELS[S.model])S.model='quattro';
+GASES.length=0;GASES.push(...MODELS[S.model].gases);
+const resetLat=()=>{S.lat={h2s:0,co:0,o2:0,lel:0,nh3:0}};
 
 /* ---------- Journal ---------- */
 const logs=[];
@@ -12800,7 +12847,19 @@ function thrScreen(title,v,withBottom,icon){
   return `<div class="grid2">${tile('h2s',v.h2s.toFixed(1))}${tile('co',String(v.co))}</div>`+band(`<span class="skull">${icon}</span>${title}`)+
     (withBottom?`<div class="grid2">${tile('o2',v.o2.toFixed(1))}${tile('lel',String(v.lel))}</div>`:'<div style="flex:1"></div>')+pillBtn;
 }
-const BOOT=[
+const row5=(g,v)=>`<div class="r5"><b>${META[g].l}</b><span>${fmt(g,v)}</span><i>${META[g].u}</i></div>`;
+const KEY='<svg width="12" height="16" viewBox="0 0 12 16" style="vertical-align:middle"><circle cx="6" cy="4" r="3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 7v8M6 11h3M6 14h2" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>';
+const M5BOOT=[
+ {id:'splash',ms:2500,html:()=>`<div class="ctr"><b style="font-size:22px">DÉTECTEUR<br>5 GAZ</b><b>SIMULATION</b><small>NH₃ · H₂S · CO · O₂ · LEL</small></div>`},
+ {id:'fw',ms:2500,html:()=>`<div class="ctr"><b>Simulateur 5 gaz</b><small>Version SIM 1.0<br>Usage formation uniquement</small><small>${nowStr()}</small></div>`},
+ {id:'low',ms:3000,html:()=>`<div class="ctr" style="align-items:stretch;gap:3px"><b style="text-align:center">☠ Alarme basse</b>${GASES.map(g=>row5(g,cfg.low[g])).join('')}</div>`},
+ {id:'high',ms:3500,html:()=>`<div class="ctr" style="align-items:stretch;gap:3px"><b style="text-align:center">☠ Alarme haute</b>${GASES.map(g=>row5(g,cfg.high[g])).join('')}</div>`},
+ {id:'cal',ms:2500,html:()=>`<div class="ctr"><b>Étalonnage</b><span style="font-size:40px;font-weight:700">${cfg.calDays}</span><small>jours avant le prochain</small></div>`},
+ {id:'zero',ms:4500,html:(el)=>`<div class="ctr"><b>Mise à zéro auto</b><span class="heart" style="font-size:30px">${el<2200?'⌛':'⏳'}</span></div>`},
+ {id:'test',ms:2500,html:()=>`<div class="ctr"><b>Autotest des<br>capteurs terminé</b><span style="font-size:34px">✔</span><div class="chk" style="grid-template-columns:1fr 1fr">${GASES.map(g=>`<span>${META[g].l} ${CHECK}</span>`).join('')}</div></div>`},
+ {id:'done',ms:2000,html:()=>`<div class="ctr"><b>Démarrage terminé</b><span style="font-size:34px">✔</span></div>`}
+];
+const BOOTS={quattro:[
  {id:'splash',ms:2500,html:()=>`<div class="ctr"><b style="font-size:24px">DÉTECTEUR<br>4 GAZ</b><b>SIMULATION</b><small>H₂S · CO · O₂ · LEL</small></div>`},
  {id:'fw',ms:3000,html:()=>`<div class="ctr"><b>Simulateur 4 gaz</b><small>Version SIM 1.0<br>Usage formation uniquement</small><small>${nowStr()}</small></div>`+pillBtn},
  {id:'twa',ms:3000,html:()=>thrScreen('TWA ALARM',{h2s:cfg.twa.h2s,co:cfg.twa.co},false,'◔')},
@@ -12810,8 +12869,17 @@ const BOOT=[
  {id:'test',ms:3000,html:()=>`<div class="ctr"><b>Autotest des<br>capteurs terminé</b><span style="font-size:34px">✔</span><div class="chk" style="grid-template-columns:1fr 1fr"><span>H₂S ${CHECK}</span><span>CO ${CHECK}</span><span>O₂ ${CHECK}</span><span>LEL ${CHECK}</span></div></div>`},
  {id:'cal',ms:3000,html:()=>`<div class="grid2"><div class="tile"><span class="tl">H₂S jours</span><span class="tv">${cfg.calDays}</span></div><div class="tile"><span class="tl">CO jours</span><span class="tv">${cfg.calDays}</span></div></div>`+band('Prochain étal.')+`<div class="grid2"><div class="tile"><span class="tl">O₂ jours</span><span class="tv">${cfg.calDays}</span></div><div class="tile"><span class="tl">LEL jours</span><span class="tv">${cfg.calDays}</span></div></div>`+pillBtn},
  {id:'done',ms:3000,html:()=>`<div class="ctr" style="align-items:stretch"><b style="text-align:center">Démarrage terminé</b><div class="chk one">${['Matériel','Batterie','Mémoire','Horloge','Capteurs','Mise à zéro auto.'].map(x=>`<span>${CHECK} ${x}</span>`).join('')}</div></div>`+pillBtn}
-];
+],micro5:M5BOOT};
+const bootList=()=>BOOTS[S.model];
+function runScreen5(){
+  const v=S.view&&performance.now()<S.view.until?S.view:null;
+  const lv=S.lvl;
+  const t=(g,big)=>{const val=v&&S.pk?S.pk[v.kind][g]:(lastShown[g]??S.real[g]);return`<div class="t5${big?' big':''}${!v&&lv[g]>0?' al':''}"><span class="v">${fmt(g,val)}</span><div class="ln"><span>${META[g].l}</span><span>${META[g].u}</span></div></div>`};
+  const mid=v?`<b>${v.kind==='max'?'MAXIMUM':'MINIMUM'}</b>`:(S.level>0?`<b>${S.level===2?'HAUTE':'BASSE'} ALARME</b>`:'<span class="heart">♥</span>');
+  return`<div class="m5">${t('nh3',1)}<div class="r2">${t('h2s')}${t('co')}</div><div class="r2">${t('o2')}${t('lel')}</div><div class="bottom"><span>${bat()} ${KEY}</span><span>${mid}</span><span>▢</span></div></div>`;
+}
 function runScreen(){
+  if(S.model==='micro5')return runScreen5();
   const lv=S.lvl;const t=g=>tile(g,fmt(g,lastShown[g]??S.real[g]),lv[g]>0);
   const mid=S.level>0?band(`<span class="skull">☠</span>${S.level===2?'HAUTE':'BASSE'} ALARM`,true):band('<span class="heart">♥</span>');
   return `<div class="grid2">${t('h2s')}${t('co')}</div>${mid}<div class="grid2">${t('o2')}${t('lel')}</div><div class="bottom"><span>✔ ⚗</span>${bat()}</div>`;
@@ -12821,28 +12889,29 @@ function render(){
   const lcd=$('#lcd');let html='',bl=false,dark=false;
   switch(S.state){
     case'off':dark=true;html='';break;
-    case'boot':{const el=performance.now()-S.bootT0;const sc=BOOT[S.bootIdx];html=sc.html(el-S.bootStart);bl=true;break}
+    case'boot':{const el=performance.now()-S.bootT0;const sc=bootList()[S.bootIdx];html=sc.html(el-S.bootStart);bl=true;break}
     case'run':html=runScreen();bl=performance.now()<S.bl||S.level>0;break;
     case'shutdown':{const k=Math.min(1,(performance.now()-S.shT0)/2100);html=`<div class="ctr"><b>Arrêt en cours…</b><div class="bar"><i style="width:${k*100}%"></i></div><small>Maintenir pour éteindre</small></div>`;bl=true;break}
     case'arret':html='<div class="ctr"><b>ARRÊT</b></div>';bl=true;break;
   }
   if(html!==lastHTML){$('#scr').innerHTML=html;lastHTML=html}
   lcd.classList.toggle('dark',dark);lcd.classList.toggle('bl',bl);
-  $('#dev').className='dev'+(S.state==='run'&&S.level?` al${S.level}`:'');
+  $('#dev').className='dev '+S.model+(S.state==='run'&&S.level?` al${S.level}`:'');
   const h=$('#hint');
-  h.textContent=S.state==='off'?'Appareil éteint. Maintenir le bouton jaune 2 secondes pour allumer.':(S.state==='run'&&S.level===0?'Appui court : rétroéclairage. Maintenir : extinction.':'');
+  const m5=S.model==='micro5';
+  h.textContent=S.state==='off'?`Appareil éteint. Maintenir le bouton ${MODELS[S.model].btn} 2 secondes pour allumer.`:(S.state==='run'&&S.level===0?(m5?'Vert : maintenir pour éteindre. Bleu : acquitter. ▲ ▼ : valeurs max et min.':'Appui court : rétroéclairage. Maintenir : extinction.'):'');
 }
 
 /* ---------- Séquence d'état ---------- */
 function bootNext(first){
   const q=cfg.fullBoot?1:.28;
   if(first){S.bootIdx=0}else S.bootIdx++;
-  if(S.bootIdx>=BOOT.length){S.state='run';S.bl=performance.now()+4000;log('Détecteur prêt');return}
-  S.bootStart=performance.now()-S.bootT0;S.bootDue=performance.now()+BOOT[S.bootIdx].ms*q;
+  if(S.bootIdx>=bootList().length){S.state='run';S.bl=performance.now()+4000;log('Détecteur prêt');return}
+  S.bootStart=performance.now()-S.bootT0;S.bootDue=performance.now()+bootList()[S.bootIdx].ms*q;
 }
 function powerOn(){
   audioInit();
-  S.state='boot';S.bootT0=performance.now();S.lat={h2s:0,co:0,o2:0,lel:0};S.level=0;S.silenced=false;
+  S.state='boot';S.bootT0=performance.now();resetLat();S.level=0;S.silenced=false;S.view=null;S.pk={max:{},min:{}};GASES.forEach(g=>{S.pk.max[g]=S.real[g];S.pk.min[g]=S.real[g]});
   bootNext(true);log('Détecteur allumé');
   try{navigator.wakeLock&&navigator.wakeLock.request('screen').catch(()=>{})}catch(e){}
 }
@@ -12854,34 +12923,78 @@ function loop(){
   if(S.state==='arret'&&now>=S.arretT)S.state='off';
   if(now-lastFrame>=250||!lastFrame){GASES.forEach(g=>lastShown[g]=shown(g));lastFrame=now}
   evalAlarms();
+  if(S.state==='run'&&S.pk)GASES.forEach(g=>{const v=S.real[g];if(v>S.pk.max[g])S.pk.max[g]=v;if(v<S.pk.min[g])S.pk.min[g]=v});
   scTick(dt);
   render();
 }
 setInterval(loop,100);
 
 /* ---------- Bouton ---------- */
-const btn=$('#pbtn');let holdT=null,held=false,downAt=0;
-btn.addEventListener('pointerdown',e=>{
-  e.preventDefault();audioInit();btn.setPointerCapture&&btn.setPointerCapture(e.pointerId);btn.classList.add('down');
-  held=false;downAt=performance.now();
-  if(S.state==='off')holdT=setTimeout(()=>{held=true;powerOn()},2000);
-  else if(S.state==='run')holdT=setTimeout(()=>{held=true;S.state='shutdown';S.shT0=performance.now();log('Arrêt demandé (bouton maintenu)')},700);
-});
-function release(){
-  btn.classList.remove('down');clearTimeout(holdT);
-  if(S.state==='shutdown'){S.state='run';log('Arrêt annulé');return}
-  if(held||S.state!=='run')return;
+let holdT=null,held=false;
+function shortPress(){
+  if(S.state!=='run')return;
   buzz.mode='click';buzz.until=performance.now()+60;
   S.bl=performance.now()+10000;
-  if(S.alarmSince){log(`Appui sur le bouton ${((performance.now()-S.alarmSince)/1000).toFixed(1)} s après le début de l'alarme`);S.alarmSince=-Math.abs(S.alarmSince)}
+  if(S.alarmSince>0){log(`Appui sur le bouton ${((performance.now()-S.alarmSince)/1000).toFixed(1)} s après le début de l'alarme`);S.alarmSince=-S.alarmSince}
   else log('Appui court sur le bouton');
   if(S.level>0&&cfg.ackSil){S.silenced=true;log('Sonnerie acquittée')}
-  if(cfg.latch&&S.liveLevel===0&&S.level>0){S.lat={h2s:0,co:0,o2:0,lel:0};log('Alarme verrouillée réinitialisée')}
+  if(cfg.latch&&S.liveLevel===0&&S.level>0){resetLat();log('Alarme verrouillée réinitialisée')}
 }
-btn.addEventListener('pointerup',release);btn.addEventListener('pointercancel',release);
-btn.addEventListener('keydown',e=>{if((e.key===' '||e.key==='Enter')&&!e.repeat){btn.dispatchEvent(new PointerEvent('pointerdown',{pointerId:1}))}});
-btn.addEventListener('keyup',e=>{if(e.key===' '||e.key==='Enter')release()});
-btn.addEventListener('contextmenu',e=>e.preventDefault());
+function bindPower(btn){
+  btn.addEventListener('pointerdown',e=>{
+    e.preventDefault();audioInit();btn.setPointerCapture&&btn.setPointerCapture(e.pointerId);btn.classList.add('down');
+    held=false;
+    if(S.state==='off')holdT=setTimeout(()=>{held=true;powerOn()},2000);
+    else if(S.state==='run')holdT=setTimeout(()=>{held=true;S.state='shutdown';S.shT0=performance.now();log('Arrêt demandé (bouton maintenu)')},700);
+  });
+  const release=()=>{
+    btn.classList.remove('down');clearTimeout(holdT);
+    if(S.state==='shutdown'){S.state='run';log('Arrêt annulé');return}
+    if(held||S.state!=='run')return;
+    shortPress();
+  };
+  btn.addEventListener('pointerup',release);btn.addEventListener('pointercancel',release);
+  btn.addEventListener('keydown',e=>{if((e.key===' '||e.key==='Enter')&&!e.repeat){btn.dispatchEvent(new PointerEvent('pointerdown',{pointerId:1}))}});
+  btn.addEventListener('keyup',e=>{if(e.key===' '||e.key==='Enter')release()});
+  btn.addEventListener('contextmenu',e=>e.preventDefault());
+}
+function bindAck(btn){
+  btn.addEventListener('pointerdown',e=>{e.preventDefault();audioInit();btn.classList.add('down');shortPress()});
+  const up=()=>btn.classList.remove('down');btn.addEventListener('pointerup',up);btn.addEventListener('pointercancel',up);btn.addEventListener('pointerleave',up);
+  btn.addEventListener('contextmenu',e=>e.preventDefault());
+}
+function bindPeak(btn,kind){
+  btn.addEventListener('pointerdown',e=>{e.preventDefault();audioInit();btn.classList.add('down');
+    if(S.state==='run'){S.view={kind,until:performance.now()+6000};S.bl=performance.now()+10000;buzz.mode='click';buzz.until=performance.now()+60;log(kind==='max'?'Consultation des valeurs maximales':'Consultation des valeurs minimales')}});
+  const up=()=>btn.classList.remove('down');btn.addEventListener('pointerup',up);btn.addEventListener('pointercancel',up);btn.addEventListener('pointerleave',up);
+  btn.addEventListener('contextmenu',e=>e.preventDefault());
+}
+const DOMS={quattro:$('#dev').innerHTML};
+const M5DOM=`<div class="head5" id="head"><i class="bar l"></i><i class="bar r"></i><i class="port big"></i><i class="port p-l"></i><i class="port p-r"></i><i class="port p-b"></i><i class="pin"></i></div>
+ <div class="mid5"><div class="side"><button class="rb pw" id="pbtn" aria-label="Bouton vert : maintenir pour allumer ou éteindre, appui court pour l'éclairage"></button><button class="rb en" id="b5en" aria-label="Bouton bleu : acquitter"></button></div>
+ <div class="lcdbox"><div class="lcd dark" id="lcd"><div class="scr" id="scr"></div></div></div>
+ <div class="side"><button class="rb up" id="b5up" aria-label="Valeurs maximales"></button><button class="rb dn" id="b5dn" aria-label="Valeurs minimales"></button></div></div>
+ <div class="dev-foot"><span>Simulateur 5 gaz</span><span>Formation</span></div>`;
+function buildDevice(){
+  $('#dev').innerHTML=S.model==='micro5'?M5DOM:DOMS.quattro;
+  lastHTML='';bindPower($('#pbtn'));
+  if(S.model==='micro5'){bindAck($('#b5en'));bindPeak($('#b5up'),'max');bindPeak($('#b5dn'),'min')}
+  requestAnimationFrame(()=>{try{fit()}catch(e){}});
+}
+function fillGasUI(){
+  $('#presets').innerHTML=PRE.map((p,i)=>[p,i]).filter(([p])=>p[0]==='air'||GASES.includes(p[0])).map(([p,i])=>`<button class="btn" data-p="${i}">${p[2]}<small>${p[3]}</small></button>`).join('');
+  $('#fg').innerHTML=GASES.map(g=>`<option value="${g}">${META[g].l} ${META[g].u}</option>`).join('');
+}
+function setModel(m){
+  if(!MODELS[m])return;
+  S.model=m;store.set('d4g_model',m);
+  GASES.length=0;GASES.push(...MODELS[m].gases);
+  if(S.state!=='off'){S.state='off';S.level=0;buzz.cur=null}
+  S.view=null;buildDevice();fillGasUI();thrUI();fillSel();if(S.editing)edLoad();
+  const ms=$('#modelSel');if(ms)ms.value=m;
+}
+function chooseModel(m){setModel(m);if(S.role==='trainer'){peers.forEach(p=>p.open&&send(p,{t:'model',m}));log('Modèle : '+MODELS[m].name)}}
+
 
 /* ---------- Scénarios : exécution ---------- */
 const curScen=()=>allScen().find(s=>s.id===$('#scSel').value)||allScen()[0];
@@ -12920,7 +13033,7 @@ function fillSel(keep){
 $('#scSel').onchange=()=>{if(S.sc)return;$('#scDesc').textContent=curScen().desc||'';scRender();if(S.editing)edLoad()};
 
 /* ---------- Éditeur ---------- */
-const gOpts=cur=>[['h2s','H₂S'],['co','CO'],['o2','O₂'],['lel','LEL'],['air','Air libre']].map(([v,l])=>`<option value="${v}"${v===cur?' selected':''}>${l}</option>`).join('');
+const gOpts=cur=>GASES.map(g=>[g,META[g].l]).concat([['air','Air libre']]).map(([v,l])=>`<option value="${v}"${v===cur?' selected':''}>${l}</option>`).join('');
 let ed=null;
 function edLoad(){const d=curScen();ed=JSON.parse(JSON.stringify(d));$('#edName').value=ed.name;edRows();}
 function edRows(){
@@ -12950,8 +13063,8 @@ $('#scEdit').onclick=()=>{S.editing=!S.editing;$('#scEditor').hidden=!S.editing;
 /* ---------- Direct ---------- */
 const PRE=[['co',30,'CO 30','sous le seuil'],['co',80,'CO 80','alarme basse'],['co',250,'CO 250','alarme haute'],
  ['h2s',7,'H₂S 7','alarme basse'],['h2s',15,'H₂S 15','alarme haute'],['o2',18.6,'O₂ 18,6','alarme basse'],['o2',17,'O₂ 17,0','alarme haute'],
- ['lel',25,'LEL 25','alarme basse'],['lel',50,'LEL 50','alarme haute'],['air',0,'Air libre','tout revient à zéro']];
-$('#presets').innerHTML=PRE.map((p,i)=>`<button class="btn" data-p="${i}">${p[2]}<small>${p[3]}</small></button>`).join('');
+ ['lel',25,'LEL 25','alarme basse'],['lel',50,'LEL 50','alarme haute'],
+ ['nh3',15,'NH₃ 15','sous le seuil'],['nh3',35,'NH₃ 35','alarme basse'],['nh3',70,'NH₃ 70','alarme haute'],['air',0,'Air libre','tout revient à zéro']];
 $('#presets').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(!b)return;audioInit();const p=PRE[b.dataset.p];setTarget(p[0],p[1],+$('#ramp').value);log(`Direct : ${p[2]}`)});
 $('#ramp').oninput=e=>$('#rampV').textContent=e.target.value;
 $('#fgo').onclick=()=>{audioInit();const g=$('#fg').value,v=parseFloat($('#fv').value);if(isNaN(v))return;setTarget(g,v,+$('#ramp').value);log(`Direct : ${META[g].l} → ${v} ${META[g].u}`)};
@@ -12999,6 +13112,7 @@ function cmd(c){
 function applyCmd(c){
   if(c.t==='set')rawTarget(c.g,c.to,c.d);
   else if(c.t==='batt')S.battLow=!!c.v;
+  else if(c.t==='model')setModel(c.m);
   else if(c.t==='cfg'){Object.assign(cfg,c.cfg);store.set('d4g_cfg',cfg);setUI()}
 }
 const b64u=u=>{let s='';u.forEach(b=>s+=String.fromCharCode(b));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')};
@@ -13064,7 +13178,7 @@ function applyRole(){
 function wireTrainer(p){
   p.dc.onopen=()=>{
     p.open=true;p.target=true;if(!peers.includes(p))peers.push(p);S.role='trainer';applyRole();
-    send(p,{t:'cfg',cfg:pickCfg()});
+    send(p,{t:'model',m:S.model});send(p,{t:'cfg',cfg:pickCfg()});
     if(pair&&pair.p===p){closeCam();pair=null}
     renderLink();renderPeers();
   };
@@ -13112,8 +13226,8 @@ function wireTrainee(t){
 }
 function pushState(){
   if(!tr)return;
-  const v=g=>fmt(g,lastShown[g]??META[g].air);
-  sendT({t:'st',s:S.state,l:S.level,b:S.battLow,v:{h2s:v('h2s'),co:v('co'),o2:v('o2'),lel:v('lel')}});
+  const v={};GASES.forEach(g=>{v[g]=fmt(g,lastShown[g]??META[g].air)});
+  sendT({t:'st',s:S.state,l:S.level,b:S.battLow,v});
 }
 async function traineeStart(){
   audioInit();
@@ -13156,7 +13270,7 @@ function renderPeers(){
   const cards=peers.map((p,i)=>{
     const[txt,cls]=stateOf(p),v=p.st&&p.st.v;
     return`<div class="peer${i===0?' first':''}"><label class="chkl"><input type="checkbox" data-peer="${i}"${p.target?' checked':''}${p.open?'':' disabled'}> <b>${(p.name||'Stagiaire').replace(/</g,'&lt;')}</b></label><span class="chip ${cls}">${txt}</span>`+
-      `<div class="pv">${v&&p.open?`H₂S ${v.h2s} · CO ${v.co} · O₂ ${v.o2} · LEL ${v.lel}${p.st.b?' · batterie faible':''}`:'Aucune donnée'}</div></div>`;
+      `<div class="pv">${v&&p.open?`${Object.keys(v).map(g=>`${META[g]?META[g].l:g} ${v[g]}`).join(' · ')}${p.st.b?' · batterie faible':''}`:'Aucune donnée'}</div></div>`;
   }).join('');
   el.innerHTML=`<h2>Stagiaires liés <span class="note" style="text-transform:none;letter-spacing:0">(les commandes vont aux cases cochées)</span></h2>`+(cards||'<div class="note">Aucun stagiaire lié.</div>');
 }
@@ -13242,7 +13356,9 @@ function autoJoin(){
   openCam().then(()=>traineeOffer(m[1]));
 }
 
-setUI();fillSel();renderLog();render();renderLink();fit();autoJoin();
+$('#modelSel').innerHTML=Object.entries(MODELS).map(([k,m])=>`<option value="${k}">${m.name}</option>`).join('');
+$('#modelSel').value=S.model;$('#modelSel').onchange=e=>chooseModel(e.target.value);
+setUI();fillGasUI();fillSel();renderLog();buildDevice();render();renderLink();fit();autoJoin();
 })();
 </script>
 </body></html>
