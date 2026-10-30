@@ -3,7 +3,7 @@
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="apple-touch-icon" href="icon.svg">
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html,body{margin:0}[hidden]{display:none!important}</style>
-<title>Simulateur Détecteur 4 Gaz</title>
+<title>Simulateur Détecteurs de Gaz</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#f2c500">
 <link rel="manifest" href="manifest.webmanifest">
@@ -223,6 +223,52 @@ label.chkl{display:flex;gap:8px;align-items:center;font-size:14px}
 .lamp.l1.on{background:var(--warn);border-color:var(--warn);color:var(--accent-fg)}
 .lamp.l2.on{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
 .pmeta{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+/* ---------- Modèle 6 capteurs (type X-am 8000) ---------- */
+.dev.xam8000{background:linear-gradient(170deg,#41444b,#22242a);border-radius:26px 26px 40px 40px/26px 26px 46px 46px;padding:10px 16px 16px}
+.dev.xam8000 .dev-foot{color:#c9ccd2}
+.dev.xam8000 .lcdbox{background:#0c0d0f;padding:7px;border-radius:10px;margin:0 6px}
+.dev.xam8000 .lcd{aspect-ratio:1/1.28;padding:0;font-family:var(--f-body);font-weight:600;border-radius:4px}
+.dev.xam8000 .lcd.bl{--bgc:#1d47a6;--ink:#fff}
+.dev.xam8000 .lcd .scr{gap:0}
+.headx{position:relative;height:150px;margin:0 2px 8px;border-radius:20px 20px 10px 10px;background:linear-gradient(#17191c,#0e0f11);border:2px solid #070708}
+.headx .ring{position:absolute;left:50%;top:50%;width:70px;height:70px;transform:translate(-50%,-50%);border:6px solid #2b8fe0;border-radius:50%;background:radial-gradient(circle,#050506 40%,#16181b 42%);box-shadow:0 0 0 3px #0a0b0c}
+.headx .fil{position:absolute;left:50%;top:-14px;width:34px;height:24px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle at 40% 35%,#fffbe8,#d8cfae);border:2px solid #8a8570}
+.headx .lbar{position:absolute;top:18px;bottom:18px;width:11px;border-radius:7px;background:#3b3e45}
+.headx .lbar.l{left:12px}.headx .lbar.r{right:12px}
+.headx.leds-on .lbar{background:#ff2a1c;box-shadow:0 0 16px 6px rgba(255,40,20,.9)}
+.keysx{display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;justify-items:center;background:linear-gradient(#e2e4e7,#aab0b8);border-radius:40px;padding:10px 12px;margin:10px 0 0}
+.kx{width:48px;height:48px;border-radius:50%;border:3px solid #17356f;background:radial-gradient(circle at 40% 35%,#5b90ee,#1f55c2);color:#fff;font:700 14px var(--f-display);cursor:pointer;touch-action:none;padding:0;box-shadow:inset 0 -3px 5px rgba(0,0,0,.3)}
+.kx.ok{width:54px;height:54px;background:radial-gradient(circle at 40% 35%,#d4f77c,#7cc21f);border-color:#4b7a10;color:#233f06}
+.kx:active,.kx.down{transform:translateY(2px)}
+.kx:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+.xh{display:flex;justify-content:space-between;align-items:center;gap:4px;font-size:10px;padding:3px 5px;border-bottom:1px solid var(--ink)}
+.xh svg{width:12px;height:12px;vertical-align:middle;fill:none;stroke:currentColor;stroke-width:1.6}
+.xh .xa{font-weight:700;font-size:11px;padding:0 4px;border:1px solid var(--ink);border-radius:3px;animation:inv .5s steps(2,jump-none) infinite}
+.xh .xc{background:#e8f27a;color:#1d3a05;padding:0 4px;border-radius:2px;animation:hb 1.2s steps(2,jump-none) infinite}
+.xbody{flex:1;display:flex;flex-direction:column;min-height:0}
+.xr{display:grid;grid-template-columns:44px 1fr 38px;align-items:baseline;gap:2px;padding:3px 6px;border-bottom:1px solid color-mix(in srgb,var(--ink) 60%,transparent);font-size:13px}
+.xr b{font-weight:700}.xr span{text-align:right;font-variant-numeric:tabular-nums}.xr i{font-style:normal;font-size:10px;text-align:right;opacity:.9}
+.xr.xal{animation:inv .5s steps(2,jump-none) infinite}
+.xsk{display:grid;grid-template-columns:1fr 1fr 1fr;text-align:center;align-items:center;font-size:15px;padding:3px 6px 4px;margin-top:auto;border-top:1px solid color-mix(in srgb,var(--ink) 50%,transparent);min-height:26px}
+.xsk svg{width:16px;height:16px;vertical-align:middle}
+.xs{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;text-align:center;padding:6px}
+.xlogo{font:700 24px var(--f-display);letter-spacing:.08em}
+.xnum{font-size:30px;font-weight:700;margin-top:34px}
+.xs small{font-size:11px;font-weight:500}
+.xs .big{font-size:42px;font-weight:700;line-height:1}
+.xwhite{position:absolute;inset:0;background:#fff;color:#1d47a6;display:flex;align-items:center;justify-content:center;font:700 26px var(--f-display);letter-spacing:.08em}
+.xcfg{display:flex;flex-direction:column;flex:1}
+.xcfg .ti{display:flex;justify-content:space-between;align-items:baseline;padding:2px 6px 0;font-size:17px;font-weight:700}
+.xcfg .te{padding:0 6px 2px;font-size:9px;text-align:center;font-weight:500;opacity:.9}
+.xcfg .kv{display:flex;justify-content:space-between;padding:2px 6px;font-size:10px;border-bottom:1px solid var(--ink)}
+.xm{display:flex;flex-direction:column;flex:1}
+.xm div{padding:3px 7px;font-size:12px;border-bottom:1px solid var(--ink);display:flex;justify-content:space-between}
+.xm div.sel{background:#25c6e8;color:#00263a}
+.xdet{display:flex;flex-direction:column;flex:1}
+.xdet .ti{display:flex;justify-content:space-between;padding:4px 7px;font-size:15px;font-weight:700}
+.xdet .vv{flex:1;display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:600;font-variant-numeric:tabular-nums}
+.xdet .vv.xal{animation:inv .5s steps(2,jump-none) infinite}
 @media (prefers-reduced-motion:reduce){.dev.al1,.dev.al2,.tile.al,.band.alb>span,.heart{animation:none}}
 </style>
 
@@ -312,7 +358,7 @@ label.chkl{display:flex;gap:8px;align-items:center;font-size:14px}
       <label class="f" style="max-width:240px">O₂ enrichissement (alarme basse à partir de, %)<input type="number" id="o2hi" step="0.1"></label>
       <label class="f" style="max-width:240px">Jours avant prochain étalonnage<input type="number" id="calDays"></label>
       <h2>Comportement</h2>
-      <label class="chkl"><input type="checkbox" id="fullBoot"> Séquence de démarrage complète (≈ 30 s)</label>
+      <label class="chkl"><input type="checkbox" id="fullBoot"> Séquence de démarrage complète (plus longue)</label>
       <label class="chkl"><input type="checkbox" id="latch"> Alarmes à verrouillage (reste affichée jusqu'à un appui, à l'air libre)</label>
       <label class="chkl"><input type="checkbox" id="ackSil"> Un appui coupe le son de l'alarme en cours</label>
       <h2>Son et vibration</h2>
@@ -12736,9 +12782,11 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const GASES=['h2s','co','o2','lel'];
 const MODELS={
  quattro:{name:'Détecteur 4 gaz (type Quattro)',gases:['h2s','co','o2','lel'],btn:'jaune'},
- micro5:{name:'Détecteur 5 gaz avec NH₃ (type Micro 5)',gases:['nh3','h2s','co','o2','lel'],btn:'vert'}};
-const META={nh3:{l:'NH₃',u:'ppm',d:0,air:0},h2s:{l:'H₂S',u:'ppm',d:1,air:0},co:{l:'CO',u:'ppm',d:0,air:0},o2:{l:'O₂',u:'%',d:1,air:20.9},lel:{l:'LEL',u:'%',d:0,air:0}};
-const DEFAULTS={low:{h2s:5,co:50,o2:19,lel:20,nh3:25},high:{h2s:10,co:200,o2:18,lel:40,nh3:50},twa:{h2s:5,co:50},o2hi:23.5,calDays:58,
+ micro5:{name:'Détecteur 5 gaz avec NH₃ (type Micro 5)',gases:['nh3','h2s','co','o2','lel'],btn:'vert'},
+ xam8000:{name:'Détecteur 6 capteurs, menu et 3 touches (type X-am 8000)',gases:['ibut','co2','ch4','so2','ph3','h2'],btn:'OK'}};
+const META={nh3:{l:'NH₃',u:'ppm',d:0,air:0},h2s:{l:'H₂S',u:'ppm',d:1,air:0},co:{l:'CO',u:'ppm',d:0,air:0},o2:{l:'O₂',u:'%',d:1,air:20.9},lel:{l:'LEL',u:'%',d:0,air:0},
+ ibut:{l:'iBut',u:'ppm',d:1,air:0,t:'PID'},co2:{l:'CO₂',u:'Vol%',d:3,air:.04,t:'IR'},ch4:{l:'CH₄',u:'%LIE',d:1,air:0,t:'IR'},so2:{l:'SO₂',u:'ppm',d:1,air:0,t:'EC'},ph3:{l:'PH₃',u:'ppm',d:0,air:0,t:'EC'},h2:{l:'H₂',u:'ppm',d:0,air:0,t:'EC'}};
+const DEFAULTS={low:{h2s:5,co:50,o2:19,lel:20,nh3:25,ibut:50,co2:.5,ch4:17.6,so2:.5,ph3:4,h2:200},high:{h2s:10,co:200,o2:18,lel:40,nh3:50,ibut:100,co2:1,ch4:35.2,so2:1,ph3:20,h2:400},twa:{h2s:5,co:50},o2hi:23.5,calDays:58,
   fullBoot:true,latch:false,ackSil:false,sound:true,vol:60,vib:true};
 const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 let cfg=Object.assign(JSON.parse(JSON.stringify(DEFAULTS)),store.get('d4g_cfg',{}));
@@ -12773,6 +12821,31 @@ const SCEN=[
   {t:60,g:'o2',to:18.5,d:40,n:'O₂ sous 19 %'},
   {t:90,g:'lel',to:25,d:40,n:'LEL en hausse'},
   {t:160,g:'air',to:0,d:30,n:'Retour à l\'air libre'}]},
+ {id:'co2',name:'Cave ou silo : dioxyde de carbone',desc:'Le CO₂ s\'accumule dans un volume confiné (fermentation, silo). Réservé au détecteur 6 capteurs.',steps:[
+  {t:10,g:'co2',to:.35,d:15,n:'Sous le seuil'},
+  {t:40,g:'co2',to:.7,d:20,n:'Alarme A1 attendue à 0,5 Vol%'},
+  {t:80,g:'co2',to:1.5,d:20,n:'Alarme A2 attendue à 1 Vol%'},
+  {t:140,g:'air',to:0,d:30,n:'Ventilation, retour à l\'air libre'}]},
+ {id:'ch4',name:'Fuite de gaz naturel : méthane',desc:'Le CH₄ monte jusqu\'à l\'alarme A2. Réservé au détecteur 6 capteurs.',steps:[
+  {t:10,g:'ch4',to:8,d:15,n:'Présence de gaz, sous le seuil'},
+  {t:40,g:'ch4',to:22,d:20,n:'Alarme A1 attendue à 17,6 %LIE'},
+  {t:80,g:'ch4',to:45,d:20,n:'Alarme A2 attendue à 35,2 %LIE'},
+  {t:140,g:'air',to:0,d:30,n:'Coupure du gaz et ventilation'}]},
+ {id:'ibut',name:'Déversement de solvant : composés organiques',desc:'Détection par PID (iBut). Réservé au détecteur 6 capteurs.',steps:[
+  {t:10,g:'ibut',to:30,d:15,n:'Odeur de solvant, sous le seuil'},
+  {t:40,g:'ibut',to:70,d:20,n:'Alarme A1 attendue à 50 ppm'},
+  {t:80,g:'ibut',to:140,d:20,n:'Alarme A2 attendue à 100 ppm'},
+  {t:140,g:'air',to:0,d:30,n:'Retour à l\'air libre'}]},
+ {id:'ph3',name:'Conteneur fumigé : phosphine',desc:'Ouverture d\'un conteneur traité, PH₃ en hausse. Réservé au détecteur 6 capteurs.',steps:[
+  {t:10,g:'ph3',to:2,d:10,n:'Sous le seuil'},
+  {t:40,g:'ph3',to:6,d:15,n:'Alarme A1 attendue à 4 ppm'},
+  {t:80,g:'ph3',to:25,d:20,n:'Alarme A2 attendue à 20 ppm'},
+  {t:140,g:'air',to:0,d:30,n:'Évacuation et ventilation'}]},
+ {id:'h2',name:'Local de charge : hydrogène',desc:'Dégagement d\'H₂ dans un local de batteries. Réservé au détecteur 6 capteurs.',steps:[
+  {t:10,g:'h2',to:120,d:15,n:'Sous le seuil'},
+  {t:40,g:'h2',to:250,d:20,n:'Alarme A1 attendue à 200 ppm'},
+  {t:80,g:'h2',to:450,d:20,n:'Alarme A2 attendue à 400 ppm'},
+  {t:140,g:'air',to:0,d:30,n:'Ventilation du local'}]},
  {id:'nh3',name:'Installation frigorifique : ammoniac',desc:'Fuite de NH₃ dans un local technique, jusqu\'à l\'alarme haute. Réservé au détecteur 5 gaz.',steps:[
   {t:10,g:'nh3',to:15,d:15,n:'Odeur piquante, sous le seuil'},
   {t:40,g:'nh3',to:35,d:20,n:'Alarme basse attendue à 25 ppm'},
@@ -12785,11 +12858,11 @@ const allScen=()=>SCEN.concat(custom).filter(okScen);
 
 /* ---------- État ---------- */
 const S={role:'solo',model:store.get('d4g_model','quattro'),view:null,pk:null,battCmd:false,state:'off',bootIdx:0,bootT0:0,shT0:0,bl:0,battLow:false,
-  real:{h2s:0,co:0,o2:20.9,lel:0,nh3:0},ramp:{},lat:{h2s:0,co:0,o2:0,lel:0,nh3:0},lvl:{h2s:0,co:0,o2:0,lel:0,nh3:0},
+  real:Object.fromEntries(Object.keys(META).map(g=>[g,META[g].air])),ramp:{},lat:Object.fromEntries(Object.keys(META).map(g=>[g,0])),lvl:Object.fromEntries(Object.keys(META).map(g=>[g,0])),x:null,xHold:0,warmEnd:{},
   level:0,alarmSince:0,silenced:false,pressedSince:0,pressCount:0,reactTime:null,sc:null,speed:1,editing:false,stu:false,tapT:[]};
 if(!MODELS[S.model])S.model='quattro';
 GASES.length=0;GASES.push(...MODELS[S.model].gases);
-const resetLat=()=>{S.lat={h2s:0,co:0,o2:0,lel:0,nh3:0}};
+const resetLat=()=>{S.lat=Object.fromEntries(Object.keys(META).map(g=>[g,0]))};
 
 /* ---------- Journal ---------- */
 const logs=[];
@@ -12817,13 +12890,14 @@ const PAT={
   high:ms=>ms%250<125,
   cont:()=>true,
   boot:ms=>[0,160,320,480].some(s=>ms>=s&&ms<s+80),
-  click:ms=>ms<50
+  click:ms=>ms<50,
+  xb:ms=>ms<250
 };
 let buzz={mode:null,t0:0,until:0},prevOn=false,ledOn=false;
 function wantMode(){
   const now=performance.now();
   if(S.state==='shutdown')return'cont';
-  if(S.state==='boot'&&S.bootIdx===0&&now-S.bootT0<700)return'boot';
+  if(S.state==='boot'&&S.bootIdx===0&&now-S.bootT0<700&&S.model!=='xam8000')return'boot';
   if(buzz.mode==='click'&&now<buzz.until)return'click';
   if(buzz.mode==='test'+'Low'&&now<buzz.until)return'low';
   if(S.state==='run'&&S.level>0&&!S.silenced)return S.level===2?'high':'low';
@@ -12834,10 +12908,11 @@ function buzzLoop(){
   if(buzz.test&&now<buzz.test.until)m=buzz.test.mode;
   if(m!==buzz.cur){buzz.cur=m;buzz.t0=now}
   const on=m?PAT[m](now-buzz.t0):false;
+  try{if(osc){const f=S.model==='xam8000'?3040:3700;if(osc.frequency.value!==f)osc.frequency.value=f}}catch(e){}
   setBuzz(on);
-  if(on&&!prevOn&&cfg.vib&&m!=='click'&&navigator.vibrate){try{navigator.vibrate(m==='high'?110:90)}catch(e){}}
+  if(on&&!prevOn&&cfg.vib&&m!=='click'&&m!=='xb'&&navigator.vibrate){try{navigator.vibrate(m==='high'?110:90)}catch(e){}}
   prevOn=on;
-  const led=(S.state==='run'&&S.level>0)?(m?on:true&&((now%500)<250)):(S.state==='shutdown'||m==='boot'?on||m==='cont':false);
+  const led=(S.state==='run'&&S.level>0)?(m?on:true&&((now%500)<250)):(S.state==='shutdown'||m==='boot'||m==='xb'?on||m==='cont':false);
   if(led!==ledOn){ledOn=led;$('#head').classList.toggle('leds-on',led)}
 }
 setInterval(buzzLoop,20);
@@ -12861,7 +12936,7 @@ let lastShown={},lastFrame=0;
 function evalAlarms(){
   const was=S.level;let any=0,live=0;
   for(const g of GASES){
-    const l=levelOf(g,S.real[g]);live=Math.max(live,l);
+    const l=(S.warmEnd[g]>performance.now())?0:levelOf(g,S.real[g]);live=Math.max(live,l);
     if(cfg.latch){S.lat[g]=Math.max(S.lat[g],l);S.lvl[g]=S.lat[g]}else S.lvl[g]=l;
     any=Math.max(any,S.lvl[g]);
   }
@@ -12909,8 +12984,104 @@ const BOOTS={quattro:[
  {id:'test',ms:3000,html:()=>`<div class="ctr"><b>Autotest des<br>capteurs terminé</b><span style="font-size:34px">✔</span><div class="chk" style="grid-template-columns:1fr 1fr"><span>H₂S ${CHECK}</span><span>CO ${CHECK}</span><span>O₂ ${CHECK}</span><span>LEL ${CHECK}</span></div></div>`},
  {id:'cal',ms:3000,html:()=>`<div class="grid2"><div class="tile"><span class="tl">H₂S jours</span><span class="tv">${cfg.calDays}</span></div><div class="tile"><span class="tl">CO jours</span><span class="tv">${cfg.calDays}</span></div></div>`+band('Prochain étal.')+`<div class="grid2"><div class="tile"><span class="tl">O₂ jours</span><span class="tv">${cfg.calDays}</span></div><div class="tile"><span class="tl">LEL jours</span><span class="tv">${cfg.calDays}</span></div></div>`+pillBtn},
  {id:'done',ms:3000,html:()=>`<div class="ctr" style="align-items:stretch"><b style="text-align:center">Démarrage terminé</b><div class="chk one">${['Matériel','Batterie','Mémoire','Horloge','Capteurs','Mise à zéro auto.'].map(x=>`<span>${CHECK} ${x}</span>`).join('')}</div></div>`+pillBtn}
-],micro5:M5BOOT};
-const bootList=()=>BOOTS[S.model];
+],micro5:M5BOOT,};
+BOOTS.xam8000=null;
+const bootList=()=>S.model==='xam8000'?XBOOT:BOOTS[S.model];
+/* ---------- Modèle 6 capteurs : écrans et touches ---------- */
+const XI={
+ shield:'<svg viewBox="0 0 16 16"><path d="M8 1.5l5.5 2v4.2c0 3-2.3 5.3-5.5 6.8C4.8 13 2.5 10.700 2.500 7.700V3.500z"/><path d="M5.500 8l2 2 3-3.500"/></svg>',
+ warn:'<svg viewBox="0 0 16 16"><path d="M8 2l6.500 11.500h-13z"/><path d="M8 6.500v3.500M8 11.500v.5"/></svg>',
+ bat:'<svg viewBox="0 0 16 16" style="width:16px"><rect x="1" y="4.500" width="12" height="7" rx="1"/><path d="M14.500 7v2M3.500 6.500v3M6 6.500v3M8.500 6.500v3"/></svg>',
+ menu:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.800"><path d="M2 3.500h12M2 8h12M2 12.500h12"/></svg>',
+ zoom:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.800"><circle cx="6.500" cy="6.500" r="4.500"/><path d="M10 10l4.500 4.500"/></svg>'};
+const xclock=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return p(d.getHours())+':'+p(d.getMinutes())};
+const xhead=(mode)=>`<div class="xh"><span${mode==='run'?' class="xc"':''}>${xclock()}</span><span>${S.level>0&&S.state==='run'?`<span class="xa">A${S.level}</span>`:(mode==='run'?XI.shield:'')} ${XI.warn}</span><span>${XI.bat} ${S.battLow?'12%':'100%'}</span></div>`;
+const xsk=(l,m,r)=>`<div class="xsk"><span>${l||''}</span><span>${m||''}</span><span>${r||''}</span></div>`;
+const xthr=(g,v)=>String(+v.toFixed(3));
+function xCfgScreen(g){
+  const m=META[g],rows=[['Seuil A2',xthr(g,cfg.high[g])],['Seuil A1',xthr(g,cfg.low[g])],['Limite VME',''],['Limite VLCT',''],[g==='ibut'?'RF':'Facteur LIE',g==='ibut'?'1.00':(g==='ch4'?'5.00':'')]];
+  return xhead('boot')+`<div class="xcfg"><div class="ti"><span>${m.l}</span><span>${m.u}</span></div><div class="te">${m.t}</div>${rows.map(r=>`<div class="kv"><span>${r[0]}</span><span>${r[1]}</span></div>`).join('')}</div>`+xsk('','✓','☑');
+}
+const xlogo='<b class="xlogo">SIM</b>';
+const XBOOT=[
+ {id:'ver',ms:2500,html:()=>`<div class="xs">${xlogo}<small>Simulateur de formation</small><small>type X-am 8000</small><small>SIM 1.0</small></div>`},
+ {id:'logo',ms:2500,snd:1,html:()=>`<div class="xs">${xlogo}<small>Test des signaux…</small></div>`},
+ {id:'atest',ms:3000,snd:1,html:()=>`<div class="xwhite">SIM</div>`},
+ ...['ibut','co2','ch4','so2','ph3','h2'].map(g=>({id:'c_'+g,ms:3000,html:()=>xCfgScreen(g)})),
+ {id:'fw',ms:2500,html:()=>xhead('boot')+`<div class="xs"><span class="big">ⓘ</span><small>Attente de débit…</small></div>`+xsk('✕','','')},
+ {id:'f1',ms:4200,html:(el)=>xhead('boot')+`<div class="xs"><small>Test de débit</small><span class="big">⟳</span><b style="font-size:20px">${Math.max(0,60-Math.floor(el/700))} s</b><small>Bloquer l'entrée</small></div>`+xsk('✕','','')},
+ {id:'f2',ms:3500,html:(el)=>xhead('boot')+`<div class="xs"><small>Test de débit</small><span class="big">⟳</span><b style="font-size:20px">${Math.max(0,59-Math.floor(el/700))} s</b><small>Libérer l'entrée</small></div>`+xsk('✕','','')}
+];
+function xInit(){
+  const now=performance.now(),W=cfg.fullBoot?24000:6000;
+  S.x={scr:'list',sel:0,m:0,t:now,last:0,W};
+  S.warmEnd={ibut:now+W,co2:now+W/2,ch4:now+W/2};
+}
+const xwarm=g=>{const e=S.warmEnd[g];return e&&e>performance.now()?e-performance.now():0};
+function xRows(){
+  return GASES.map(g=>{
+    const w=xwarm(g),lv=S.lvl[g]||0;
+    const val=w?('00:0'+Math.max(1,Math.ceil(w/(S.x.W/2)))):fmt(g,lastShown[g]??S.real[g]);
+    return`<div class="xr${lv>0?' xal':''}"><b>${META[g].l}</b><span>${val}</span><i>${w?'hh:mm':META[g].u}</i></div>`}).join('');
+}
+function runScreenX(){
+  const x=S.x||(xInit(),S.x),now=performance.now();
+  if(S.level>0&&!x.last)x.scr='list';x.last=S.level;
+  if(x.scr!=='list'&&now-x.t>30000)x.scr='list';
+  const names=['Mesurer','Espace confiné','Info ›','Maintenance ›','Réglages','Arrêter'];
+  switch(x.scr){
+    case'detail':{const g=GASES[x.sel],w=xwarm(g),lv=S.lvl[g]||0;
+      return xhead('run')+`<div class="xdet"><div class="ti"><span>${META[g].l}</span><span>${w?'hh:mm':META[g].u}</span></div><div class="vv${lv>0?' xal':''}">${w?'00:0'+Math.max(1,Math.ceil(w/(x.W/2))):fmt(g,lastShown[g]??S.real[g])}</div></div>`+xsk('▼',XI.zoom,'▲')}
+    case'peak':return xhead('run')+`<div class="xbody">${GASES.map(g=>`<div class="xr"><b>${META[g].l}</b><span>${fmt(g,S.pk?S.pk.max[g]:0)}</span><i>${META[g].u}</i></div>`).join('')}</div>`+xsk('','★ max','')
+    case'dlg_menu':return xhead('run')+`<div class="xs"><span class="big">☰</span><b>Ouvrir menu ?</b></div>`+xsk('✕','✓','')
+    case'menu':return xhead('run')+`<div class="xm">${names.map((n,i)=>`<div class="${i===x.m?'sel':''}"><span>${n}</span></div>`).join('')}</div>`+xsk('▼','✓','▲')
+    case'info':return xhead('run')+`<div class="xs"><b>Info</b><small>type X-am 8000 (simulateur)</small><small>Version SIM 1.0</small><small>Batterie ${S.battLow?'12':'100'} %</small><small>Étalonnage dans ${cfg.calDays} jours</small></div>`+xsk('','✓','')
+    case'stub':return xhead('run')+`<div class="xs"><b>${x.title}</b><small>Fonction non simulée</small></div>`+xsk('','✓','')
+    case'dlg_off':return xhead('run')+`<div class="xs"><span class="big">?</span><b>Arrêter l'appareil ?</b></div>`+xsk('✓','✕','')
+    default:return xhead('run')+`<div class="xbody">${xRows()}</div>`+xsk(XI.menu,XI.zoom,'★');
+  }
+}
+function xKey(k){
+  if(S.state!=='run')return;
+  if(!S.x)xInit();
+  const x=S.x;x.t=performance.now();
+  const lvBefore=S.level;
+  shortPress(true,S.level===1&&k==='ok');
+  if(lvBefore>0&&k==='ok'&&x.scr==='list')return;
+  const n=GASES.length;
+  switch(x.scr){
+    case'list':if(k==='dn')x.scr='dlg_menu';else if(k==='ok')x.scr='detail';else x.scr='peak';break;
+    case'detail':if(k==='dn')x.sel=(x.sel+n-1)%n;else if(k==='up')x.sel=(x.sel+1)%n;else x.scr='list';break;
+    case'peak':x.scr='list';break;
+    case'dlg_menu':if(k==='ok'){x.scr='menu';x.m=0}else if(k==='dn')x.scr='list';break;
+    case'menu':if(k==='dn')x.m=(x.m+1)%6;else if(k==='up')x.m=(x.m+5)%6;else{
+      const m=x.m;if(m===0)x.scr='list';else if(m===2)x.scr='info';else if(m===5)x.scr='dlg_off';else{x.scr='stub';x.title=['','Espace confiné','','Maintenance','Réglages'][m]}}break;
+    case'info':case'stub':x.scr='menu';break;
+    case'dlg_off':if(k==='dn'){S.state='shutdown';S.shT0=performance.now();log('Arrêt demandé (menu)')}else if(k==='ok')x.scr='menu';break;
+  }
+}
+function xBeep(){buzz.test={mode:'xb',until:performance.now()+380};try{if(cfg.vib&&navigator.vibrate)navigator.vibrate(400)}catch(e){}}
+function bindX(){
+  const ok=$('#pbtn'),dn=$('#xdn'),up=$('#xup');
+  const vis=(b,on)=>b.classList[on?'add':'remove']('down');
+  ok.addEventListener('pointerdown',e=>{e.preventDefault();audioInit();ok.setPointerCapture&&ok.setPointerCapture(e.pointerId);vis(ok,1);held=false;
+    if(S.state==='off'){S.xHold=performance.now();holdT=setTimeout(()=>{held=true;S.xHold=0;powerOn()},3000)}
+    else if(S.state==='run')xKey('ok')});
+  const rel=()=>{vis(ok,0);clearTimeout(holdT);if(S.state==='off')S.xHold=0};
+  ok.addEventListener('pointerup',rel);ok.addEventListener('pointercancel',rel);
+  [[dn,'dn'],[up,'up']].forEach(([b,k])=>{
+    b.addEventListener('pointerdown',e=>{e.preventDefault();audioInit();vis(b,1);if(S.state==='run')xKey(k)});
+    const u=()=>vis(b,0);b.addEventListener('pointerup',u);b.addEventListener('pointercancel',u);b.addEventListener('pointerleave',u)});
+  [ok,dn,up].forEach(b=>b.addEventListener('contextmenu',e=>e.preventDefault()));
+}
+const XDOM=`<div class="headx" id="head"><i class="fil"></i><i class="lbar l"></i><i class="lbar r"></i><i class="ring"></i></div>
+ <div class="lcdbox"><div class="lcd dark" id="lcd"><div class="scr" id="scr"></div></div></div>
+ <div class="keysx"><button class="kx" id="xdn" aria-label="Touche bleue de gauche ▼">▼</button><button class="kx ok" id="pbtn" aria-label="Touche verte OK : maintenir 3 secondes pour allumer">OK</button><button class="kx" id="xup" aria-label="Touche bleue de droite ▲">▲</button></div>
+ <div class="dev-foot"><span>Sim. 6 capteurs</span><span>Formation</span></div>`;
+const xHint=()=>S.state==='off'?'Appareil éteint. Maintenir la touche verte OK 3 secondes pour allumer.':(S.state==='run'?'Chaque touche agit sur l\'icône affichée juste au-dessus : ▼ à gauche, OK au centre, ▲ à droite.':'');
+const xCount=()=>{const n=Math.max(1,3-Math.floor((performance.now()-S.xHold)/1000));return`<div class="xs">${xlogo}<div class="xnum">${n}</div></div>`};
+const xShut=()=>xhead('boot')+'<div class="xs"><span class="big">▮</span><small>Arrêt appareil…</small></div>';
+
 function runScreen5(){
   const v=S.view&&performance.now()<S.view.until?S.view:null;
   const lv=S.lvl;
@@ -12919,6 +13090,7 @@ function runScreen5(){
   return`<div class="m5">${t('nh3',1)}<div class="r2">${t('h2s')}${t('co')}</div><div class="r2">${t('o2')}${t('lel')}</div><div class="bottom"><span>${bat()} ${KEY}</span><span>${mid}</span><span>▢</span></div></div>`;
 }
 function runScreen(){
+  if(S.model==='xam8000')return runScreenX();
   if(S.model==='micro5')return runScreen5();
   const lv=S.lvl;const t=g=>tile(g,fmt(g,lastShown[g]??S.real[g]),lv[g]>0);
   const mid=S.level>0?band(`<span class="skull">☠</span>${S.level===2?'HAUTE':'BASSE'} ALARM`,true):band('<span class="heart">♥</span>');
@@ -12928,26 +13100,27 @@ let lastHTML='';
 function render(){
   const lcd=$('#lcd');let html='',bl=false,dark=false;
   switch(S.state){
-    case'off':dark=true;html='';break;
+    case'off':if(S.model==='xam8000'&&S.xHold){html=xCount();bl=true}else{dark=true;html=''}break;
     case'boot':{const el=performance.now()-S.bootT0;const sc=bootList()[S.bootIdx];html=sc.html(el-S.bootStart);bl=true;break}
-    case'run':html=runScreen();bl=performance.now()<S.bl||S.level>0;break;
-    case'shutdown':{const k=Math.min(1,(performance.now()-S.shT0)/2100);html=`<div class="ctr"><b>Arrêt en cours…</b><div class="bar"><i style="width:${k*100}%"></i></div><small>Maintenir pour éteindre</small></div>`;bl=true;break}
-    case'arret':html='<div class="ctr"><b>ARRÊT</b></div>';bl=true;break;
+    case'run':html=runScreen();bl=performance.now()<S.bl||S.level>0||S.model==='xam8000';break;
+    case'shutdown':if(S.model==='xam8000'){html=xShut();bl=true;break}{const k=Math.min(1,(performance.now()-S.shT0)/2100);html=`<div class="ctr"><b>Arrêt en cours…</b><div class="bar"><i style="width:${k*100}%"></i></div><small>Maintenir pour éteindre</small></div>`;bl=true;break}
+    case'arret':html=S.model==='xam8000'?xShut():'<div class="ctr"><b>ARRÊT</b></div>';bl=true;break;
   }
   if(html!==lastHTML){$('#scr').innerHTML=html;lastHTML=html}
   lcd.classList.toggle('dark',dark);lcd.classList.toggle('bl',bl);
   $('#dev').className='dev '+S.model+(S.state==='run'&&S.level?` al${S.level}`:'');
   const h=$('#hint');
   const m5=S.model==='micro5';
-  h.textContent=S.state==='off'?`Appareil éteint. Maintenir le bouton ${MODELS[S.model].btn} 2 secondes pour allumer.`:(S.state==='run'&&S.level===0?(m5?'Vert : maintenir pour éteindre. Bleu : acquitter. ▲ ▼ : valeurs max et min.':'Appui court : rétroéclairage. Maintenir : extinction.'):'');
+  h.textContent=S.model==='xam8000'?xHint():S.state==='off'?`Appareil éteint. Maintenir le bouton ${MODELS[S.model].btn} 2 secondes pour allumer.`:(S.state==='run'&&S.level===0?(m5?'Vert : maintenir pour éteindre. Bleu : acquitter. ▲ ▼ : valeurs max et min.':'Appui court : rétroéclairage. Maintenir : extinction.'):'');
 }
 
 /* ---------- Séquence d'état ---------- */
 function bootNext(first){
   const q=cfg.fullBoot?1:.28;
   if(first){S.bootIdx=0}else S.bootIdx++;
-  if(S.bootIdx>=bootList().length){S.state='run';S.bl=performance.now()+4000;log('Détecteur prêt');return}
+  if(S.bootIdx>=bootList().length){S.state='run';S.bl=performance.now()+4000;if(S.model==='xam8000')xInit();log('Détecteur prêt');return}
   S.bootStart=performance.now()-S.bootT0;S.bootDue=performance.now()+bootList()[S.bootIdx].ms*q;
+  if(bootList()[S.bootIdx].snd)xBeep();
 }
 function powerOn(){
   audioInit();
@@ -12972,14 +13145,14 @@ setInterval(loop,100);
 
 /* ---------- Bouton ---------- */
 let holdT=null,held=false;
-function shortPress(){
+function shortPress(quiet,ack){
   if(S.state!=='run')return;
   S.pressCount++;
   buzz.mode='click';buzz.until=performance.now()+60;
   S.bl=performance.now()+10000;
   if(S.alarmSince>0){log(`Appui sur le bouton ${((performance.now()-S.alarmSince)/1000).toFixed(1)} s après le début de l'alarme`);S.reactTime=(performance.now()-S.alarmSince)/1000;S.alarmSince=-S.alarmSince}
-  else log('Appui court sur le bouton');
-  if(S.level>0&&cfg.ackSil){S.silenced=true;log('Sonnerie acquittée')}
+  else if(!quiet)log('Appui court sur le bouton');
+  if(S.level>0&&(ack===undefined?cfg.ackSil:ack)){S.silenced=true;log('Sonnerie acquittée')}
   if(cfg.latch&&S.liveLevel===0&&S.level>0){resetLat();log('Alarme verrouillée réinitialisée')}
 }
 function bindPower(btn){
@@ -13018,8 +13191,8 @@ const M5DOM=`<div class="head5" id="head"><i class="bar l"></i><i class="bar r">
  <div class="side"><button class="rb up" id="b5up" aria-label="Valeurs maximales"></button><button class="rb dn" id="b5dn" aria-label="Valeurs minimales"></button></div></div>
  <div class="dev-foot"><span>Simulateur 5 gaz</span><span>Formation</span></div>`;
 function buildDevice(){
-  $('#dev').innerHTML=S.model==='micro5'?M5DOM:DOMS.quattro;
-  lastHTML='';bindPower($('#pbtn'));
+  $('#dev').innerHTML=S.model==='micro5'?M5DOM:(S.model==='xam8000'?XDOM:DOMS.quattro);
+  lastHTML='';if(S.model==='xam8000')bindX();else bindPower($('#pbtn'));
   if(S.model==='micro5'){bindAck($('#b5en'));bindPeak($('#b5up'),'max');bindPeak($('#b5dn'),'min')}
   requestAnimationFrame(()=>{try{fit()}catch(e){}});
 }
@@ -13032,7 +13205,7 @@ function setModel(m){
   S.model=m;store.set('d4g_model',m);
   GASES.length=0;GASES.push(...MODELS[m].gases);
   if(S.state!=='off'){S.state='off';S.level=0;buzz.cur=null}
-  S.view=null;buildDevice();fillGasUI();thrUI();fillSel();if(S.editing)edLoad();
+  S.view=null;S.x=null;S.xHold=0;S.warmEnd={};buildDevice();fillGasUI();thrUI();fillSel();if(S.editing)edLoad();
   const ms=$('#modelSel');if(ms)ms.value=m;
 }
 function chooseModel(m){setModel(m);if(S.role==='trainer'){peers.forEach(p=>p.open&&send(p,{t:'model',m}));log('Modèle : '+MODELS[m].name)}}
@@ -13106,6 +13279,10 @@ $('#scEdit').onclick=()=>{S.editing=!S.editing;$('#scEditor').hidden=!S.editing;
 const PRE=[['co',30,'CO 30','sous le seuil'],['co',80,'CO 80','alarme basse'],['co',250,'CO 250','alarme haute'],
  ['h2s',7,'H₂S 7','alarme basse'],['h2s',15,'H₂S 15','alarme haute'],['o2',18.6,'O₂ 18,6','alarme basse'],['o2',17,'O₂ 17,0','alarme haute'],
  ['lel',25,'LEL 25','alarme basse'],['lel',50,'LEL 50','alarme haute'],
+ ['ibut',30,'iBut 30','sous le seuil'],['ibut',70,'iBut 70','alarme A1'],['ibut',140,'iBut 140','alarme A2'],
+ ['co2',.35,'CO₂ 0,35','sous le seuil'],['co2',.7,'CO₂ 0,7','alarme A1'],['co2',1.5,'CO₂ 1,5','alarme A2'],
+ ['ch4',10,'CH₄ 10','sous le seuil'],['ch4',22,'CH₄ 22','alarme A1'],['ch4',45,'CH₄ 45','alarme A2'],
+ ['so2',.7,'SO₂ 0,7','alarme A1'],['so2',1.5,'SO₂ 1,5','alarme A2'],['ph3',6,'PH₃ 6','alarme A1'],['ph3',25,'PH₃ 25','alarme A2'],['h2',250,'H₂ 250','alarme A1'],['h2',450,'H₂ 450','alarme A2'],
  ['nh3',15,'NH₃ 15','sous le seuil'],['nh3',35,'NH₃ 35','alarme basse'],['nh3',70,'NH₃ 70','alarme haute'],['air',0,'Air libre','tout revient à zéro']];
 $('#presets').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(!b)return;audioInit();const p=PRE[b.dataset.p];setTarget(p[0],p[1],+$('#ramp').value);log(`Direct : ${p[2]}`)});
 $('#ramp').oninput=e=>$('#rampV').textContent=e.target.value;
@@ -13117,7 +13294,7 @@ $('#logClr').onclick=()=>{logs.length=0;renderLog()};
 
 /* ---------- Réglages ---------- */
 function thrUI(){
-  $('#thr').innerHTML='<span></span><b>Basse</b><b>Haute</b>'+GASES.map(g=>`<b>${META[g].l}</b><input type="number" step="0.1" data-th="low.${g}" value="${cfg.low[g]}" aria-label="${META[g].l} alarme basse"><input type="number" step="0.1" data-th="high.${g}" value="${cfg.high[g]}" aria-label="${META[g].l} alarme haute">`).join('')+
+  $('#thr').innerHTML=`<span></span><b>${S.model==='xam8000'?'A1':'Basse'}</b><b>${S.model==='xam8000'?'A2':'Haute'}</b>`+GASES.map(g=>`<b>${META[g].l}</b><input type="number" step="0.1" data-th="low.${g}" value="${cfg.low[g]}" aria-label="${META[g].l} alarme basse"><input type="number" step="0.1" data-th="high.${g}" value="${cfg.high[g]}" aria-label="${META[g].l} alarme haute">`).join('')+
    '<span class="note" style="grid-column:1/-1">Pour O₂ l\'alarme se déclenche sous le seuil, pour les autres gaz au-dessus.</span>';
 }
 $('#thr').addEventListener('input',e=>{const k=e.target.dataset.th;if(!k)return;const[a,g]=k.split('.');const v=parseFloat(e.target.value);if(!isNaN(v)){cfg[a][g]=v;if(a==='low'&&(g==='h2s'||g==='co'))cfg.twa[g]=v;saveCfg()}});
